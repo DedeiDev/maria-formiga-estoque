@@ -1,0 +1,63 @@
+# =========================================
+# PROJETO ETL COM PYTHON
+# =========================================
+#
+# Este projeto foi desenvolvido com o objetivo
+# de praticar o fluxo ETL (Extração,
+# Transformação e Carregamento de dados)
+# utilizando Python.
+# =========================================
+
+usuarios = [
+    {
+        "nome": "Andrei",
+        "conta": "Conta Gold",
+        "cartao": "Mastercard Black"
+    },
+    {
+        "nome": "Maria",
+        "conta": "Conta Premium",
+        "cartao": "Visa Infinite"
+    },
+    {
+        "nome": "Carlos",
+        "conta": "Conta Universitária",
+        "cartao": "Elo"
+    }
+]
+
+print("\ Carregando usuários...\n")
+
+for usuario in usuarios:
+    print(
+        f"Cliente: {usuario['nome']} | "
+        f"Conta: {usuario['conta']} | "
+        f"Cartão: {usuario['cartao']}"
+    )
+
+def gerar_mensagem(nome, conta):
+    return (
+        f"Olá, {nome}! "
+        f"Percebemos que você possui uma {conta} "
+        f"e queremos lembrar que existem benefícios "
+        f"exclusivos disponíveis para você."
+    )
+
+
+print("\n Gerando mensagens personalizadas...\n")
+
+for usuario in usuarios:
+    usuario["mensagem"] = gerar_mensagem(
+        usuario["nome"],
+        usuario["conta"]
+    )
+# Exibição final dos dados já processados.
+
+print("\n Dados processados com sucesso!\n")
+
+for usuario in usuarios:
+    print("=" * 60)
+    print(f"👤 Cliente : {usuario['nome']}")
+    print(f"🏦 Conta   : {usuario['conta']}")
+    print(f"💳 Cartão  : {usuario['cartao']}")
+    print(f"💬 Mensagem: {usuario['mensagem']}")

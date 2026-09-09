@@ -1,0 +1,4 @@
+# Ferramenta de uso interno da Doceria Maria Formiga.
+# O endereco e publico para a dona abrir sem login, nao para aparecer em buscas.
+User-agent: *
+Disallow: /

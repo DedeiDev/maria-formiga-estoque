@@ -1157,19 +1157,20 @@ body.trancado .app,body.trancado .abas{visibility:hidden}
       + '</tr></thead><tbody>';
     S.sabores.forEach(function(s){
       var q = qtdNaTela(s), id = esc(s.id);
-      out += '<tr>'
+      out += '<tr data-linha="' + id + '">'
         + '<td class="nomecel"><span class="ponto" style="background:' + esc(s.cor || '#A56B3E') + '"></span>'
         + '<button class="editar" data-acao="editar" data-id="' + id + '" type="button">' + esc(s.nome) + '</button></td>'
         + '<td><input class="cel" inputmode="numeric" data-campo="qtd" data-id="' + id + '" value="' + q + '" aria-label="Pra vender: ' + esc(s.nome) + '"></td>'
         + '<td><input class="cel" inputmode="numeric" data-campo="crus" data-id="' + id + '" value="' + nn(s.crus) + '" aria-label="Pra assar: ' + esc(s.nome) + '"></td>'
         + '<td><input class="cel" inputmode="decimal" data-campo="preco" data-id="' + id + '" value="' + precoBR(s.preco) + '" aria-label="Preço de ' + esc(s.nome) + '"></td>'
         + '<td><input class="cel" inputmode="numeric" data-campo="minimo" data-id="' + id + '" value="' + nn(s.minimo) + '" aria-label="Mínimo de ' + esc(s.nome) + '"></td>'
-        + '<td class="valorcel">' + moeda(q * nn(s.preco)) + '</td>'
+        + '<td class="valorcel" data-vl="' + id + '">' + moeda(q * nn(s.preco)) + '</td>'
         + '</tr>';
     });
     out += '</tbody><tfoot><tr><td>Total</td><td class="valorcel">' + t.vender + '</td>'
       + '<td class="valorcel">' + t.assar + '</td><td></td><td></td>'
       + '<td class="valorcel">' + moeda(t.valor) + '</td></tr></tfoot></table></div>';
+    /* as três células de total ficam nesta ordem: vender, assar, valor */
     out += '<div class="acoes-sheet" style="margin-top:12px">'
       + '<button class="btn fantasma" data-acao="novo-sabor" type="button">+ Novo sabor</button>'
       + '<button class="btn fantasma" data-acao="csv" type="button">Exportar</button></div>';
@@ -1364,7 +1365,41 @@ body.trancado .app,body.trancado .abas{visibility:hidden}
     var a = document.activeElement;
     return !!(a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA') && elView.contains(a));
   }
+  /* a tabela só é reconstruída quando o conjunto de sabores muda. Reconstruir
+     por causa de uma edição derrubava o campo que o dedo ia tocar em seguida. */
+  function mesmasLinhas(){
+    var tab = elView.querySelector('table');
+    if (!tab) return false;
+    var naTela = Array.prototype.map.call(
+      tab.querySelectorAll('tbody [data-campo="qtd"]'),
+      function(i){ return i.getAttribute('data-id'); }).join(',');
+    return naTela === S.sabores.map(function(x){ return x.id; }).join(',');
+  }
+  function pintarPlanilha(){
+    var tab = elView.querySelector('table');
+    if (!tab) return;
+    var t = totais(), ativo = document.activeElement;
+    function campo(nome, id){ return tab.querySelector('[data-campo="' + nome + '"][data-id="' + id + '"]'); }
+    S.sabores.forEach(function(x){
+      var q = qtdNaTela(x);
+      var vl = tab.querySelector('[data-vl="' + x.id + '"]');
+      if (vl) vl.textContent = moeda(q * nn(x.preco));
+      var pares = [['qtd', q], ['crus', nn(x.crus)], ['minimo', nn(x.minimo)], ['preco', precoBR(x.preco)]];
+      pares.forEach(function(par){
+        var el = campo(par[0], x.id);
+        if (el && el !== ativo && el.value !== String(par[1])) el.value = par[1];
+      });
+    });
+    var pes = tab.querySelectorAll('tfoot .valorcel');
+    if (pes.length >= 3){
+      pes[0].textContent = t.vender;
+      pes[1].textContent = t.assar;
+      pes[2].textContent = moeda(t.valor);
+    }
+    atualizarBarra();
+  }
   function render(){
+    if (S.aba === 'planilha' && mesmasLinhas()){ sujo = false; pintarPlanilha(); return; }
     if (focoEmCampo()){ sujo = true; atualizarBarra(); return; }
     sujo = false;
     atualizarBarra();

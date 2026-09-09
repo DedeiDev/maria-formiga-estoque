@@ -379,6 +379,19 @@ tfoot td:first-child{background:var(--surface-2)}
 .comp .l b{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
 .comp .l b.sobe{color:var(--ok)}
 .comp .l b.desce{color:var(--crit)}
+.btn.planilha-dia{
+  width:100%;margin-top:12px;gap:8px;
+  background:var(--accent);color:var(--on-accent);
+}
+.btn.planilha-dia svg{
+  width:17px;height:17px;flex:none;fill:none;stroke:currentColor;
+  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;
+}
+.btn.planilha-dia.fina{
+  background:var(--surface-2);color:var(--ink);border:1px solid var(--line);
+  min-height:40px;font-size:.82rem;margin-top:10px;
+}
+.btn.planilha-dia.fina:active{background:var(--bg-deep)}
 .sem-mov{margin:0;font-size:.82rem;color:var(--ink-faint);text-align:center;padding:6px 0 2px}
 .alerta{
   display:flex;gap:7px;align-items:baseline;
@@ -1079,6 +1092,7 @@ body.trancado .app,body.trancado .abas{visibility:hidden}
 
   var ICO_APAGA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 5h11.4a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H8.6L2.6 12z"/><path d="M12.4 9.4l5.2 5.2M17.6 9.4l-5.2 5.2"/></svg>';
   var ICO_LIXO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 7h15M9.5 7V5.2h5V7M6.6 7l.9 12.3h9l.9-12.3"/></svg>';
+  var ICO_PLAN = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.4" y="4.4" width="17.2" height="15.2" rx="2.2"/><path d="M3.4 9.2h17.2M9.4 9.2v10.4M15 9.2v10.4"/></svg>';
 
   /* ============ tela: estoque ============ */
   function blocoResumo(){
@@ -1236,6 +1250,9 @@ body.trancado .app,body.trancado .abas{visibility:hidden}
       out += '<div class="alerta"><b>Repor:</b><span>' + esc(alertas.join(' · ')) + '</span></div>';
     }
 
+    out += '<button class="btn planilha-dia" data-acao="planilha-dia" data-dia="' + esc(hoje) + '" type="button">'
+      + ICO_PLAN + 'Gerar a planilha do dia</button>';
+
     var n = (f.tot.lancamentos || 0);
     if (n){
       var aberto = !!diasAbertos[hoje];
@@ -1322,6 +1339,8 @@ body.trancado .app,body.trancado .abas{visibility:hidden}
         + '<span class="seta">' + (aberto ? '▴' : '▾') + '</span></button>';
 
       if (aberto) out += '<div class="lancs">' + listaMovs(mapa[d]) + '</div>';
+      out += '<button class="btn planilha-dia fina" data-acao="planilha-dia" data-dia="' + esc(d) + '" type="button">'
+        + ICO_PLAN + 'Planilha deste dia</button>';
       out += '</section>';
     });
 
@@ -1525,6 +1544,203 @@ body.trancado .app,body.trancado .abas{visibility:hidden}
       + (novo ? 'Cadastrar' : 'Salvar') + '</button>';
     if (!novo) h += '<button class="btn perigo" data-acao="excluir-sabor" data-id="' + esc(id) + '" type="button">Excluir</button>';
     h += '</div>';
+    abrir(h);
+  }
+
+  /* ---- planilha do dia (.xlsx de verdade, 4 abas) ---- */
+  var promXLSX = null;
+  function carregarXLSX(){
+    if (window.XLSX) return Promise.resolve(window.XLSX);
+    if (promXLSX) return promXLSX;
+    promXLSX = new Promise(function(aceita, recusa){
+      var t = document.createElement('script');
+      t.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+      t.onload = function(){ window.XLSX ? aceita(window.XLSX) : recusa(new Error('biblioteca sem XLSX')); };
+      t.onerror = function(){ recusa(new Error('não deu para baixar a biblioteca')); };
+      document.head.appendChild(t);
+      setTimeout(function(){ if (!window.XLSX) recusa(new Error('a biblioteca demorou demais')); }, 15000);
+    }).catch(function(e){ promXLSX = null; throw e; });
+    return promXLSX;
+  }
+
+  var Z_REAL = 'R$ #,##0.00', Z_PCT = '0.0%';
+  function dataBR(dia){ return dia.split('-').reverse().join('/'); }
+
+  /* monta as quatro abas do fechamento de um dia */
+  function livroDoDia(XLSX, dia){
+    var f = fechamento(dia), movs = movsDoDia(dia), hoje = dia === hojeISO();
+    var wb = XLSX.utils.book_new();
+    var semana = new Intl.DateTimeFormat('pt-BR', {weekday:'long'}).format(new Date(dia + 'T12:00:00'));
+    var ontem = doDia(diaMenos(1)), media = mediaAnterior(7);
+    var precoMedio = f.tot.vendidos ? f.tot.faturamento / f.tot.vendidos : 0;
+    var top = f.ordem.length && f.por[f.ordem[0]].vendidos ? f.por[f.ordem[0]] : null;
+    var fornos = 0, sabVendidos = 0;
+    f.ordem.forEach(function(k){ fornos += f.por[k].fornos; if (f.por[k].vendidos) sabVendidos++; });
+
+    /* 1. Resumo — cada linha diz se o valor é dinheiro, para o formato
+       acompanhar a linha em vez de depender de endereço fixo de célula */
+    var R = [
+      ['Doceria Maria Formiga'],
+      ['Fechamento do dia', dataBR(dia)],
+      ['Dia da semana', maiusc1(semana)],
+      ['Gerado em', dataBR(hojeISO()) + ' ' + HORA.format(new Date())],
+      [],
+      ['O DIA'],
+      ['Unidades vendidas', f.tot.vendidos],
+      ['Faturamento', f.tot.faturamento, Z_REAL],
+      ['Preço médio por unidade', precoMedio, Z_REAL],
+      ['Sabores que venderam', sabVendidos],
+      ['Mais vendido', top ? top.nome + ' (' + top.vendidos + ' un)' : '—'],
+      ['Lançamentos no dia', f.tot.lancamentos],
+      ['Ajustes de contagem', f.tot.ajustes],
+      ['Foi para o forno', fornos],
+      []
+    ];
+    if (hoje){
+      R.push(['COMPARAÇÕES']);
+      R.push(['Ontem — unidades', ontem.vendidos]);
+      R.push(['Ontem — faturamento', ontem.faturamento, Z_REAL]);
+      R.push(['Diferença — unidades', f.tot.vendidos - ontem.vendidos]);
+      R.push(['Diferença — faturamento', f.tot.faturamento - ontem.faturamento, Z_REAL]);
+      R.push(['Média por dia dos 7 dias anteriores — unidades', Math.round(media.vendidos * 10) / 10]);
+      R.push(['Média por dia dos 7 dias anteriores — faturamento', media.faturamento, Z_REAL]);
+      R.push([]);
+    }
+    if (!hoje) R.push(['Observação', 'A aba de estoque mostra o estoque de hoje, não o do fim daquele dia.']);
+    var wsR = XLSX.utils.aoa_to_sheet(R.map(function(l){ return [l[0], l[1]]; }));
+    R.forEach(function(l, i){
+      var cel = wsR['B' + (i + 1)];
+      if (l[2] && cel) cel.z = l[2];
+    });
+    wsR['!cols'] = [{wch:44}, {wch:26}];
+    XLSX.utils.book_append_sheet(wb, wsR, 'Resumo');
+
+    /* 2. Por sabor */
+    var PS = [['Sabor', 'Preço un.', 'Vendidos', 'Faturamento', '% do faturamento', 'Pro forno', 'Ajustes']];
+    f.ordem.forEach(function(k){
+      var x = f.por[k];
+      var pu = x.vendidos ? x.faturamento / x.vendidos : precoUn(k);
+      PS.push([x.nome, nn(pu),
+               x.vendidos, x.faturamento,
+               f.tot.faturamento ? x.faturamento / f.tot.faturamento : 0,
+               x.fornos, x.ajustes]);
+    });
+    PS.push([]);
+    PS.push(['TOTAL', '', f.tot.vendidos, f.tot.faturamento, f.tot.faturamento ? 1 : 0, fornos, f.tot.ajustes]);
+    var wsS = XLSX.utils.aoa_to_sheet(PS);
+    for (var i = 2; i <= PS.length; i++){
+      ['B', 'D'].forEach(function(col){ if (wsS[col + i]) wsS[col + i].z = Z_REAL; });
+      if (wsS['E' + i]) wsS['E' + i].z = Z_PCT;
+    }
+    wsS['!cols'] = [{wch:20}, {wch:12}, {wch:11}, {wch:14}, {wch:17}, {wch:11}, {wch:9}];
+    XLSX.utils.book_append_sheet(wb, wsS, 'Por sabor');
+
+    /* 3. Lançamentos */
+    var LC = [['Hora', 'Sabor', 'Lançamento', 'Quantidade', 'Valor un.', 'Valor total', 'Pra vender depois', 'Pra assar depois']];
+    movs.slice().reverse().forEach(function(m){
+      var venda = m.tipo === 'venda';
+      LC.push([
+        HORA.format(new Date(m.ts)), m.sabor, ROTULO[m.tipo] || m.tipo, nn(m.qtd),
+        venda ? nn(m.preco) : '', venda ? nn(m.valor) : '',
+        nn(m.depoisVender), nn(m.depoisAssar)
+      ]);
+    });
+    if (movs.length === 0) LC.push(['—', 'Nenhum lançamento neste dia', '', '', '', '', '', '']);
+    var wsL = XLSX.utils.aoa_to_sheet(LC);
+    for (var j = 2; j <= LC.length; j++){
+      ['E', 'F'].forEach(function(col){ if (wsL[col + j]) wsL[col + j].z = Z_REAL; });
+    }
+    wsL['!cols'] = [{wch:8}, {wch:20}, {wch:20}, {wch:12}, {wch:11}, {wch:13}, {wch:18}, {wch:17}];
+    XLSX.utils.book_append_sheet(wb, wsL, 'Lançamentos');
+
+    /* 4. Estoque */
+    var EQ = [['Sabor', 'Pra vender', 'Pra assar', 'Preço', 'Mínimo', 'Valor em estoque', 'Situação']];
+    var totQ = 0, totC = 0, totV = 0;
+    S.sabores.forEach(function(x){
+      var q = nn(x.qtd), c = nn(x.crus), v = q * nn(x.preco);
+      totQ += q; totC += c; totV += v;
+      EQ.push([x.nome, q, c, nn(x.preco), nn(x.minimo), v, situacao(x).txt]);
+    });
+    EQ.push([]);
+    EQ.push(['TOTAL', totQ, totC, '', '', totV, '']);
+    var wsE = XLSX.utils.aoa_to_sheet(EQ);
+    for (var k2 = 2; k2 <= EQ.length; k2++){
+      ['D', 'F'].forEach(function(col){ if (wsE[col + k2]) wsE[col + k2].z = Z_REAL; });
+    }
+    wsE['!cols'] = [{wch:20}, {wch:12}, {wch:11}, {wch:10}, {wch:9}, {wch:17}, {wch:15}];
+    XLSX.utils.book_append_sheet(wb, wsE, hoje ? 'Estoque no fim do dia' : 'Estoque hoje');
+
+    return wb;
+  }
+  function precoUn(saborId){
+    var s = acharSabor(saborId);
+    return s ? nn(s.preco) : 0;
+  }
+
+  function planilhaDoDia(dia){
+    toast('Montando a planilha…', 'Fechamento de ' + dataBR(dia));
+    var nome = 'fechamento-maria-formiga-' + dia + '.xlsx';
+    carregarXLSX().then(function(XLSX){
+      var buf = XLSX.write(livroDoDia(XLSX, dia), {bookType:'xlsx', type:'array'});
+      var blob = new Blob([buf], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+      if (window.claude && typeof window.claude.use === 'function'){
+        return window.claude.use('downloads').then(function(d){
+          if (!d) throw new Error('sem download');
+          return d.save({filename:nome, data:blob}).then(function(){
+            toast('Planilha salva', nome);
+          }, function(e){
+            if (e && e.code === 'declined') { esconderToast(); return; }
+            throw new Error('o download foi recusado');
+          });
+        });
+      }
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = nome;
+      document.body.appendChild(a); a.click(); a.remove();
+      toast('Planilha gerada', nome);
+    }).catch(function(e){
+      abrirCSVdoDia(dia, e && e.message ? e.message : 'não deu para gerar o arquivo');
+    });
+  }
+
+  /* se o .xlsx não puder ser gerado, o mesmo fechamento em texto */
+  function csvDoDia(dia){
+    var f = fechamento(dia), movs = movsDoDia(dia), L = [];
+    L.push('FECHAMENTO DO DIA;' + dataBR(dia));
+    L.push('Unidades vendidas;' + f.tot.vendidos);
+    L.push('Faturamento;' + precoBR(f.tot.faturamento));
+    L.push('Lancamentos;' + f.tot.lancamentos);
+    L.push('Ajustes;' + f.tot.ajustes);
+    L.push('');
+    L.push('POR SABOR');
+    L.push('Sabor;Vendidos;Faturamento;Pro forno;Ajustes');
+    f.ordem.forEach(function(k){
+      var x = f.por[k];
+      L.push([x.nome, x.vendidos, precoBR(x.faturamento), x.fornos, x.ajustes].join(';'));
+    });
+    L.push('');
+    L.push('LANCAMENTOS');
+    L.push('Hora;Sabor;Lancamento;Quantidade;Valor');
+    movs.slice().reverse().forEach(function(m){
+      L.push([HORA.format(new Date(m.ts)), m.sabor, ROTULO[m.tipo] || m.tipo, nn(m.qtd), precoBR(m.valor)].join(';'));
+    });
+    L.push('');
+    L.push('ESTOQUE');
+    L.push('Sabor;Pra vender;Pra assar;Preco;Minimo;Valor');
+    S.sabores.forEach(function(x){
+      L.push([x.nome, nn(x.qtd), nn(x.crus), precoBR(x.preco), nn(x.minimo), precoBR(nn(x.qtd) * nn(x.preco))].join(';'));
+    });
+    return L.join('\r\n');
+  }
+  function abrirCSVdoDia(dia, motivo){
+    esconderToast();
+    var h = cabecalho('#A56B3E', 'Fechamento de ' + dataBR(dia));
+    h += '<p class="aviso">Não deu para montar o arquivo .xlsx aqui (' + esc(motivo)
+      + '). O mesmo fechamento está abaixo em texto — toque em Copiar e cole na sua planilha.</p>';
+    h += '<textarea class="csv" id="f-csv" readonly>' + esc(csvDoDia(dia)) + '</textarea>';
+    h += '<div class="acoes-sheet"><button class="btn" data-acao="copiar-csv" type="button">Copiar</button>'
+      + '<button class="btn fantasma" data-acao="fechar" type="button">Fechar</button></div>';
     abrir(h);
   }
 
@@ -1850,6 +2066,7 @@ body.trancado .app,body.trancado .abas{visibility:hidden}
     if (acao === 'baixar-csv') return baixarCSV();
     if (acao === 'limpar') return abrirLimpar();
     if (acao === 'confirmar-limpar'){ if (ocupado()) return; return limparTudo(); }
+    if (acao === 'planilha-dia') return planilhaDoDia(b.getAttribute('data-dia'));
     if (acao === 'abrir-dia'){
       var dia = b.getAttribute('data-dia');
       diasAbertos[dia] = !diasAbertos[dia];

@@ -56,6 +56,28 @@ como foi o dia:
 - **Repor**: aviso dos sabores abaixo do mínimo e dos que zeraram mas ainda têm
   massa esperando o forno.
 - Os lançamentos do dia, escondidos atrás de um toque.
+- **Gerar a planilha do dia** — ver abaixo.
+
+### A planilha do dia
+
+O botão no fechamento gera um arquivo `.xlsx` de verdade,
+`fechamento-maria-formiga-AAAA-MM-DD.xlsx`, com quatro abas:
+
+| Aba | O que traz |
+| --- | --- |
+| **Resumo** | data e dia da semana, unidades vendidas, faturamento, preço médio por unidade, quantos sabores venderam, o mais vendido, lançamentos, ajustes, quanto foi pro forno — e as comparações com ontem e com a média dos 7 dias anteriores |
+| **Por sabor** | sabor, preço unitário, unidades vendidas, faturamento, % do faturamento do dia, quanto foi pro forno e ajustes, do que mais faturou para o que menos, com linha de TOTAL |
+| **Lançamentos** | hora, sabor, tipo, quantidade, valor unitário, valor total e como ficaram as duas contagens depois de cada lançamento |
+| **Estoque** | sabor, pra vender, pra assar, preço, mínimo, valor em estoque e a situação (`Ok`, `Acabando`, `Precisa assar`, `Acabou`), com TOTAL |
+
+Os números vão como números, com formato de moeda e de porcentagem — dá para
+somar e fazer conta em cima. Cada dia anterior tem o seu próprio botão
+**Planilha deste dia**.
+
+A biblioteca que monta o arquivo (SheetJS) é baixada do cdnjs **só quando você
+toca no botão**, para não pesar a abertura do app. Se ela não puder ser baixada,
+o app abre o mesmo fechamento em texto, com um botão de copiar — nunca falha em
+silêncio.
 
 Passadas as 21:10, um ponto aparece na aba Histórico até você olhar o
 fechamento. Para mudar o horário, é a linha `var FECHA_H = 21, FECHA_M = 10;`

@@ -200,8 +200,8 @@ main{flex:1;padding:14px 16px calc(96px + env(safe-area-inset-bottom))}
 .sabores{display:flex;flex-direction:column;gap:10px}
 .sabor{
   position:relative;display:grid;
-  grid-template-columns:auto minmax(0,1fr) auto;
-  grid-template-areas:"chip nome qtd" "chip meta qtd" "acoes acoes acoes";
+  grid-template-columns:auto minmax(0,1fr);
+  grid-template-areas:"chip nome" "chip meta" "cont cont" "acoes acoes";
   align-items:center;column-gap:11px;row-gap:1px;
   background:var(--surface);border:1px solid var(--line);
   border-radius:var(--r-lg);padding:11px 11px 11px 13px;
@@ -241,25 +241,28 @@ main{flex:1;padding:14px 16px calc(96px + env(safe-area-inset-bottom))}
 .pill.warn{background:var(--warn-bg);color:var(--warn)}
 .pill.crit{background:var(--crit-bg);color:var(--crit)}
 
-/* numero do estoque: toque abre o teclado de lancamento */
-.qtd{
-  grid-area:qtd;min-width:70px;
+/* contadores: o que esta pronto e o que esta cru */
+.contadores{grid-area:cont;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:11px}
+.cont{
   display:flex;flex-direction:column;align-items:center;gap:1px;
-  padding:5px 6px;border-radius:14px;border:1px solid transparent;
-  transition:background .15s ease, transform .1s ease;
+  padding:8px 6px 7px;border-radius:14px;
+  background:var(--surface-2);border:1px solid var(--line);
+  transition:background .15s ease, transform .1s ease, border-color .15s ease;
 }
-.qtd:active{background:var(--surface-2);transform:scale(.96)}
-.qtd b{
+.cont:active{transform:scale(.97);background:var(--bg-deep)}
+.cont em{
+  font-style:normal;font-size:.58rem;font-weight:700;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--ink-faint);
+}
+.cont b{
   font-family:var(--font-display);font-variation-settings:"SOFT" 60,"opsz" 72;
-  font-weight:800;font-size:2rem;line-height:1;
+  font-weight:800;font-size:1.95rem;line-height:1.02;
   font-variant-numeric:tabular-nums;letter-spacing:-.03em;
 }
-.qtd .cap{
-  font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--ink-faint);
-}
-.qtd.zero b{color:var(--ink-faint)}
-.qtd .cap.pend{color:var(--caramel);text-transform:none;letter-spacing:.01em;font-size:.63rem}
+.cont.zero b{color:var(--ink-faint)}
+.cont .cap{min-height:1.05em;font-size:.63rem;font-weight:700;color:var(--caramel);line-height:1.05}
+.cont.assar{border-style:dashed}
+.cont.assar b{color:var(--caramel)}
 
 .acoes-sabor{
   grid-area:acoes;display:flex;gap:8px;margin-top:10px;
@@ -268,7 +271,7 @@ main{flex:1;padding:14px 16px calc(96px + env(safe-area-inset-bottom))}
 .btn-linha{
   flex:1;min-height:44px;border-radius:13px;
   border:1px solid var(--line);background:var(--surface-2);
-  font-size:.82rem;font-weight:700;color:var(--ink);
+  font-size:.78rem;font-weight:700;color:var(--ink);
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
   transition:transform .09s ease, background .15s ease;
 }
@@ -332,6 +335,7 @@ tfoot td:first-child{background:var(--surface-2)}
 }
 .mov .delta.mais{color:var(--ok)}
 .mov .delta.menos{color:var(--crit)}
+.mov .delta.trans{color:var(--caramel)}
 .mov .apagar{
   width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
   color:var(--ink-faint);border:1px solid transparent;
@@ -481,6 +485,46 @@ tfoot td:first-child{background:var(--surface-2)}
 }
 .aviso{font-size:.76rem;color:var(--ink-soft);margin:0 0 12px}
 
+/* ---------- trava de acesso ---------- */
+body.trancado .app,body.trancado .abas{visibility:hidden}
+.trava{
+  position:fixed;inset:0;z-index:90;
+  background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;padding:26px 22px calc(26px + env(safe-area-inset-bottom));
+  text-align:center;overflow-y:auto;
+}
+.trava .selo-grande{
+  width:96px;height:96px;border-radius:50%;object-fit:cover;
+  border:2px solid var(--line-strong);box-shadow:var(--shadow-md);margin-bottom:16px;
+}
+.trava h1{
+  margin:0;font-family:var(--font-display);
+  font-variation-settings:"SOFT" 60,"WONK" 1,"opsz" 60;
+  font-weight:800;font-size:1.5rem;line-height:1.1;letter-spacing:-.015em;color:var(--accent);
+}
+.trava .ajuda{margin:5px 0 0;font-size:.85rem;color:var(--ink-soft);min-height:2.6em;max-width:26ch}
+.trava .ajuda.erro{color:var(--crit);font-weight:600}
+.pontos{display:flex;gap:13px;margin:19px 0 21px}
+.pontos i{
+  width:14px;height:14px;border-radius:50%;
+  border:1.5px solid var(--line-strong);background:transparent;
+  transition:background .14s ease, transform .14s ease, border-color .14s ease;
+}
+.pontos i.on{background:var(--accent);border-color:var(--accent);transform:scale(1.14)}
+.trava .teclado{width:100%;max-width:300px;margin-bottom:4px}
+.trava .rodape{margin-top:18px}
+@keyframes tremer{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-8px)}40%{transform:translateX(7px)}
+  60%{transform:translateX(-5px)}80%{transform:translateX(3px)}
+}
+.tremendo{animation:tremer .42s ease}
+.btn.destrancar{
+  margin-top:4px;background:transparent;color:var(--ink-faint);
+  font-size:.76rem;font-weight:600;min-height:38px;padding:0 10px;
+}
+
 /* ---------- toast ---------- */
 .toast{
   position:fixed;left:12px;right:12px;bottom:calc(78px + env(safe-area-inset-bottom));
@@ -512,6 +556,8 @@ tfoot td:first-child{background:var(--surface-2)}
 </style>
 </head>
 <body>
+<div class="trava" id="trava" hidden></div>
+
 <div class="app">
   <header class="appbar">
     <img class="selo" src="assets/logo-mark.jpg" alt="Doceria Maria Formiga" width="44" height="44">
@@ -521,7 +567,7 @@ tfoot td:first-child{background:var(--surface-2)}
     </div>
     <div class="totalzinho">
       <b id="barra-total">0</b>
-      <span id="barra-rotulo">cookies</span>
+      <span id="barra-rotulo">pra vender</span>
     </div>
   </header>
 
@@ -576,8 +622,9 @@ tfoot td:first-child{background:var(--surface-2)}
       .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
     return base || ('sabor-' + novoId());
   }
+  function clone(o){ var n = {}, k; for (k in o) if (Object.prototype.hasOwnProperty.call(o, k)) n[k] = o[k]; return n; }
 
-  /* ============ cores dos sabores (tons da marca) ============ */
+  /* ============ sabores da casa ============ */
   var CORES = ['#4C2212', '#6E2B1C', '#7B3F1D', '#A56B3E', '#C08A4A', '#D8C69B'];
   var DA_CASA = [
     {nome:'Chocolatudo', cor:'#4C2212'},
@@ -587,19 +634,24 @@ tfoot td:first-child{background:var(--surface-2)}
   ];
   function saboresDaCasa(){
     return DA_CASA.map(function(s, i){
-      return {id:slug(s.nome), nome:s.nome, cor:s.cor, qtd:0, preco:12, minimo:6, ordem:(i + 1) * 10};
+      return {id:slug(s.nome), nome:s.nome, cor:s.cor, qtd:0, crus:0, preco:12, minimo:6, ordem:(i + 1) * 10};
     });
   }
 
   /* ============ estado ============ */
-  var S = {sabores:[], movs:[], aba:'estoque', db:null, fonte:'local', prontoNuvem:false,
-           aguardando:!!(window.claude && typeof window.claude.use === 'function')};
-  var CHAVE = 'mf.cookies.v1';
+  var S = {
+    sabores:[], movs:[], aba:'estoque', db:null, fonte:'local', prontoNuvem:false,
+    aguardando:!!(window.claude && typeof window.claude.use === 'function'),
+    trancado:true, travaPronta:false
+  };
+  var CHAVE = 'mf.cookies.v1', CHAVE_SENHA = 'mf.senha.v1', CHAVE_ABERTO = 'mf.aberto.v1';
+  var JANELA = 12 * 60 * 60 * 1000;
   var sujo = false, ultimoMov = null, tToast = null;
 
   function ordenar(){ S.sabores.sort(function(a, b){ return nn(a.ordem) - nn(b.ordem); }); }
   function corpo(s){
-    return {nome:s.nome, cor:s.cor, qtd:nn(s.qtd), preco:nn(s.preco), minimo:nn(s.minimo), ordem:nn(s.ordem)};
+    return {nome:s.nome, cor:s.cor, qtd:nn(s.qtd), crus:nn(s.crus),
+            preco:nn(s.preco), minimo:nn(s.minimo), ordem:nn(s.ordem)};
   }
   function acharSabor(id){
     for (var i = 0; i < S.sabores.length; i++) if (S.sabores[i].id === id) return S.sabores[i];
@@ -621,7 +673,7 @@ tfoot td:first-child{background:var(--surface-2)}
     ordenar();
   }
 
-  /* ============ guarda na nuvem (db do artifact) ============ */
+  /* ============ guarda na nuvem ============ */
   function ocupado(){
     if (!S.aguardando) return false;
     toast('Só um instante', 'Conectando com seus dados salvos…');
@@ -629,26 +681,28 @@ tfoot td:first-child{background:var(--surface-2)}
   }
   function conectarNuvem(){
     if (!window.claude || typeof window.claude.use !== 'function') return;
-    setTimeout(function(){ if (S.aguardando){ S.aguardando = false; render(); } }, 11000);
+    setTimeout(function(){ if (S.aguardando){ S.aguardando = false; prepararTrava(); render(); } }, 11000);
     window.claude.use('db').then(function(db){
       S.aguardando = false;
-      if (!db){ render(); return; }
+      if (!db){ prepararTrava(); render(); return; }
       S.db = db;
       S.fonte = 'nuvem';
+      prepararTrava();
+      /* data() vem congelado — copiar antes de anexar o id */
       db.collection('estoque').orderBy('ordem').onSnapshot(function(snap){
         S.sabores = snap.docs.map(function(d){
-          var o = d.data() || {}; o.id = d.id; return o;
+          var o = clone(d.data() || {}); o.id = d.id; return o;
         });
         S.prontoNuvem = true;
         render();
-      }, function(){ S.db = null; S.fonte = 'local'; S.aguardando = false; iniciarLocal(); render(); });
+      }, function(){ S.db = null; S.fonte = 'local'; iniciarLocal(); render(); });
       db.collection('movimentos').orderBy('ts', 'desc').limit(300).onSnapshot(function(snap){
         S.movs = snap.docs.map(function(d){
-          var o = d.data() || {}; o.id = d.id; return o;
+          var o = clone(d.data() || {}); o.id = d.id; return o;
         });
         render();
       }, function(){});
-    }).catch(function(){ S.aguardando = false; render(); });
+    }).catch(function(){ S.aguardando = false; prepararTrava(); render(); });
   }
 
   /* ============ gravações ============ */
@@ -676,7 +730,7 @@ tfoot td:first-child{background:var(--surface-2)}
   }
   function gravarMov(m){
     if (S.db){
-      var b = {}; for (var k in m) if (k !== 'id') b[k] = m[k];
+      var b = clone(m); delete b.id;
       return S.db.doc('movimentos/' + m.id).set(b).catch(erro);
     }
     S.movs.unshift(m); S.movs = S.movs.slice(0, 400); salvarLocal(); render();
@@ -689,69 +743,92 @@ tfoot td:first-child{background:var(--surface-2)}
     return Promise.resolve();
   }
 
-  /* ============ registrar movimento ============ */
-  var ROTULO = {venda:'Venda', fornada:'Fornada', ajuste:'Contagem ajustada'};
+  /* ============ lançamentos ============ */
+  var ROTULO = {
+    venda:'Venda', assar:'Assado', massa:'Massa nova',
+    ajuste:'Contagem ajustada', ajusteAssar:'Contagem da massa'
+  };
+  var TITULO_BOTAO = {
+    venda:'Registrar venda', assar:'Saiu do forno', massa:'Registrar massa',
+    ajuste:'Salvar contagem', ajusteAssar:'Salvar contagem'
+  };
+
+  function detalheMov(m){
+    if (m.tipo === 'venda') return moeda(m.valor);
+    if (m.tipo === 'assar') return 'Pra assar ' + m.antesAssar + ' → ' + m.depoisAssar
+      + ' · pra vender ' + m.antesVender + ' → ' + m.depoisVender;
+    if (m.tipo === 'massa' || m.tipo === 'ajusteAssar') return 'Pra assar ' + m.antesAssar + ' → ' + m.depoisAssar;
+    return 'Pra vender ' + m.antesVender + ' → ' + m.depoisVender;
+  }
 
   function registrar(sabor, tipo, valorDigitado){
     if (ocupado()) return Promise.resolve();
-    var antes = nn(sabor.qtd), depois;
-    if (tipo === 'ajuste') depois = Math.max(0, Math.round(valorDigitado));
-    else if (tipo === 'fornada') depois = antes + Math.round(valorDigitado);
-    else depois = Math.max(0, antes - Math.round(valorDigitado));
-    var delta = depois - antes;
-    if (!delta) { pulsar(sabor.id); return Promise.resolve(); }
+    var v = Math.max(0, Math.round(nn(valorDigitado)));
+    var aV = nn(sabor.qtd), aA = nn(sabor.crus);
+    var dV = aV, dA = aA;
+    if (tipo === 'venda') dV = Math.max(0, aV - v);
+    else if (tipo === 'massa') dA = aA + v;
+    else if (tipo === 'assar'){ dA = Math.max(0, aA - v); dV = aV + v; }
+    else if (tipo === 'ajuste') dV = v;
+    else if (tipo === 'ajusteAssar') dA = v;
+
+    var deltaV = dV - aV, deltaA = dA - aA;
+    if (!deltaV && !deltaA){ pulsar(sabor.id); return Promise.resolve(); }
 
     var preco = nn(sabor.preco);
     var m = {
       id:novoId(), tipo:tipo, saborId:sabor.id, sabor:sabor.nome, cor:sabor.cor,
-      qtd:Math.abs(delta), delta:delta, preco:preco,
-      valor:(tipo === 'venda' ? Math.abs(delta) * preco : 0),
-      antes:antes, depois:depois, ts:new Date().toISOString()
+      qtd:Math.abs(deltaV || deltaA),
+      dVender:deltaV, dAssar:deltaA, preco:preco,
+      valor:(tipo === 'venda' ? Math.abs(deltaV) * preco : 0),
+      antesVender:aV, depoisVender:dV, antesAssar:aA, depoisAssar:dA,
+      ts:new Date().toISOString()
     };
-    return atualizarSabor(sabor.id, {qtd:depois}).then(function(){
+    var patch = {};
+    if (deltaV) patch.qtd = dV;
+    if (deltaA) patch.crus = dA;
+
+    return atualizarSabor(sabor.id, patch).then(function(){
       return gravarMov(m);
     }).then(function(){
       pulsar(sabor.id);
       ultimoMov = m;
-      var det = m.tipo === 'venda' && m.valor ? moeda(m.valor) : (antes + ' → ' + depois + ' na prateleira');
-      toast(ROTULO[tipo] + ' · ' + m.qtd + ' ' + m.sabor, det, true);
+      toast(ROTULO[tipo] + ' · ' + m.qtd + ' ' + m.sabor, detalheMov(m), true);
     });
   }
 
   function desfazer(){
     if (!ultimoMov) return;
     var m = ultimoMov; ultimoMov = null;
-    var s = acharSabor(m.saborId);
     esconderToast();
-    Promise.resolve(s ? atualizarSabor(m.saborId, {qtd:m.antes}) : null).then(function(){
+    atualizarSabor(m.saborId, {qtd:nn(m.antesVender), crus:nn(m.antesAssar)}).then(function(){
       return removerMov(m.id);
-    }).then(function(){ toast('Desfeito', m.sabor + ' voltou para ' + m.antes + '.'); });
+    }).then(function(){ toast('Desfeito', m.sabor + ' voltou para ' + nn(m.antesVender) + ' pra vender.'); });
   }
 
-  /* ============ lançamentos em fila (toques repetidos) ============ */
+  /* toques repetidos em "Vendi 1" viram um único lançamento */
   var fila = null;
-  function enfileirar(sabor, tipo, passo){
+  function vender1(sabor){
     if (ocupado()) return;
-    if (fila && (fila.id !== sabor.id || fila.tipo !== tipo)) escoar();
-    if (!fila) fila = {id:sabor.id, tipo:tipo, qtd:0, timer:null};
-    fila.qtd += passo;
-    var alvo = sabor.id;
-    if (fila.qtd <= 0){ clearTimeout(fila.timer); fila = null; pintarCartao(alvo); return; }
+    if (qtdNaTela(sabor) <= 0){
+      toast('Nada pronto', sabor.nome + ' não tem nenhum pra vender' + (nn(sabor.crus) ? ' — tem ' + nn(sabor.crus) + ' pra assar.' : '.'));
+      return;
+    }
+    if (fila && fila.id !== sabor.id) escoar();
+    if (!fila) fila = {id:sabor.id, qtd:0, timer:null};
+    fila.qtd += 1;
     clearTimeout(fila.timer);
-    fila.timer = setTimeout(escoar, 850);
-    pintarCartao(alvo);
+    fila.timer = setTimeout(escoar, 700);
+    pintarCartao(sabor.id);
   }
   function escoar(){
     if (!fila) return;
     var f = fila; fila = null;
     clearTimeout(f.timer);
     var s = acharSabor(f.id);
-    if (s && f.qtd > 0) registrar(s, f.tipo, f.qtd); else pintarCartao(f.id);
+    if (s && f.qtd > 0) registrar(s, 'venda', f.qtd); else pintarCartao(f.id);
   }
-  function deltaFila(id){
-    if (!fila || fila.id !== id) return 0;
-    return fila.tipo === 'venda' ? -fila.qtd : fila.qtd;
-  }
+  function deltaFila(id){ return (fila && fila.id === id) ? -fila.qtd : 0; }
   function qtdNaTela(s){ return Math.max(0, nn(s.qtd) + deltaFila(s.id)); }
 
   /* ============ toast ============ */
@@ -763,7 +840,7 @@ tfoot td:first-child{background:var(--surface-2)}
     elToastBtn.hidden = !comDesfazer;
     elToast.classList.add('on');
     clearTimeout(tToast);
-    tToast = setTimeout(esconderToast, comDesfazer ? 5200 : 2600);
+    tToast = setTimeout(esconderToast, comDesfazer ? 5200 : 2800);
   }
   function esconderToast(){ elToast.classList.remove('on'); clearTimeout(tToast); }
   elToastBtn.addEventListener('click', desfazer);
@@ -777,11 +854,11 @@ tfoot td:first-child{background:var(--surface-2)}
 
   /* ============ contas ============ */
   function totais(){
-    var t = {qtd:0, valor:0, baixos:0};
+    var t = {vender:0, assar:0, valor:0, baixos:0};
     S.sabores.forEach(function(s){
-      var q = qtdNaTela(s);
-      t.qtd += q; t.valor += q * nn(s.preco);
-      if (q <= 0 || q <= nn(s.minimo)) t.baixos++;
+      var q = qtdNaTela(s), c = nn(s.crus);
+      t.vender += q; t.assar += c; t.valor += q * nn(s.preco);
+      if (q <= nn(s.minimo)) t.baixos++;
     });
     return t;
   }
@@ -790,68 +867,71 @@ tfoot td:first-child{background:var(--surface-2)}
     return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
   }
   function doDia(dia){
-    var r = {vendidos:0, faturamento:0, produzidos:0};
+    var r = {vendidos:0, faturamento:0, assados:0};
     S.movs.forEach(function(m){
       if (String(m.ts).slice(0, 10) !== dia) return;
       if (m.tipo === 'venda'){ r.vendidos += nn(m.qtd); r.faturamento += nn(m.valor); }
-      if (m.tipo === 'fornada') r.produzidos += nn(m.qtd);
+      if (m.tipo === 'assar') r.assados += nn(m.qtd);
     });
     return r;
   }
   function situacao(s){
-    var q = qtdNaTela(s), min = nn(s.minimo);
+    var q = qtdNaTela(s), c = nn(s.crus), min = nn(s.minimo);
+    if (q <= 0 && c > 0) return {cls:'warn', txt:'Precisa assar'};
     if (q <= 0) return {cls:'crit', txt:'Acabou'};
     if (min > 0 && q <= min) return {cls:'warn', txt:'Acabando'};
     return {cls:'ok', txt:'Ok'};
   }
 
-  /* ============ ícones ============ */
   var ICO_APAGA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 5h11.4a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H8.6L2.6 12z"/><path d="M12.4 9.4l5.2 5.2M17.6 9.4l-5.2 5.2"/></svg>';
   var ICO_LIXO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 7h15M9.5 7V5.2h5V7M6.6 7l.9 12.3h9l.9-12.3"/></svg>';
-
-  function capQtd(d){
-    if (!d) return '<span class="cap">lançar</span>';
-    return '<span class="cap pend">' + (d < 0 ? 'vendendo ' + Math.abs(d) : 'entrando ' + d) + '</span>';
-  }
 
   /* ============ tela: estoque ============ */
   function blocoResumo(){
     var t = totais(), h = doDia(hojeISO());
     return '<div class="tile"><em>Vendidos hoje</em><b>' + h.vendidos + '</b><small>' + moeda(h.faturamento) + ' no caixa</small></div>'
-      + '<div class="tile"><em>Valor na prateleira</em><b>' + moeda(t.valor) + '</b><small>'
-      + t.qtd + ' cookie' + (t.qtd === 1 ? '' : 's') + (t.baixos ? ' · ' + t.baixos + ' para repor' : '') + '</small></div>';
+      + '<div class="tile"><em>Pra vender</em><b>' + t.vender + '</b><small>' + moeda(t.valor)
+      + ' · ' + t.assar + ' pra assar</small></div>';
+  }
+  function capPend(d){
+    return '<span class="cap">' + (d ? 'vendendo ' + Math.abs(d) : '') + '</span>';
   }
   function telaEstoque(){
     var out = '<section class="resumo" id="resumo">' + blocoResumo() + '</section>';
-
-    out += '<div class="secao"><h2>Meus cookies</h2><span class="dica">segure para repetir</span></div>';
+    out += '<div class="secao"><h2>Meus cookies</h2><span class="dica">toque nos números pra lançar</span></div>';
 
     if (!S.sabores.length){
       out += '<div class="vazio"><p>Nenhum sabor ainda</p><small>Cadastre os sabores que você faz e o estoque passa a andar com você.</small>'
         + '<div class="acoes-sheet"><button class="btn" data-acao="criar-casa" type="button">Usar os 4 da casa</button>'
         + '<button class="btn fantasma" data-acao="novo-sabor" type="button">+ Outro sabor</button></div></div>';
-    } else {
-      out += '<div class="sabores">';
-      S.sabores.forEach(function(s){
-        var q = qtdNaTela(s), sit = situacao(s), d = deltaFila(s.id);
-        out += '<article class="sabor" data-cartao="' + esc(s.id) + '">'
-          + '<span class="chip" style="background:' + esc(s.cor || '#A56B3E') + '"></span>'
-          + '<h3 class="nome">' + esc(s.nome) + '<span class="pill ' + sit.cls + '">' + sit.txt + '</span></h3>'
-          + '<p class="meta"><span class="pr">' + moeda(s.preco) + '</span> un <span class="sep">·</span> '
-          + '<span class="vl">' + moeda(q * nn(s.preco)) + '</span> <span class="sep">·</span> '
-          + '<button class="editar" data-acao="editar" data-id="' + esc(s.id) + '" type="button">editar</button></p>'
-          + '<button class="qtd' + (q ? '' : ' zero') + '" data-acao="lancar" data-id="' + esc(s.id) + '" aria-label="Lançar venda, fornada ou ajuste de ' + esc(s.nome) + '" type="button">'
-          + '<b>' + q + '</b>' + capQtd(d) + '</button>'
-          + '<div class="acoes-sabor">'
-          + '<button class="btn-linha venda" data-rep="venda" data-id="' + esc(s.id) + '" aria-label="Vender um ' + esc(s.nome) + '" type="button">− Vendi 1</button>'
-          + '<button class="btn-linha" data-rep="fornada" data-id="' + esc(s.id) + '" aria-label="Entrar um ' + esc(s.nome) + '" type="button">+ Entrou 1</button>'
-          + '</div>'
-          + '</article>';
-      });
-      out += '</div>';
-      out += '<div class="secao"><h2>Sabores</h2></div>'
-        + '<button class="btn fantasma full" data-acao="novo-sabor" type="button">+ Novo sabor</button>';
+      return out + rodape();
     }
+
+    out += '<div class="sabores">';
+    S.sabores.forEach(function(s){
+      var q = qtdNaTela(s), c = nn(s.crus), sit = situacao(s), d = deltaFila(s.id), id = esc(s.id);
+      out += '<article class="sabor" data-cartao="' + id + '">'
+        + '<span class="chip" style="background:' + esc(s.cor || '#A56B3E') + '"></span>'
+        + '<h3 class="nome">' + esc(s.nome) + '<span class="pill ' + sit.cls + '">' + sit.txt + '</span></h3>'
+        + '<p class="meta"><span class="pr">' + moeda(s.preco) + '</span> un <span class="sep">·</span> '
+        + '<span class="vl">' + moeda(q * nn(s.preco)) + '</span> <span class="sep">·</span> '
+        + '<button class="editar" data-acao="editar" data-id="' + id + '" type="button">editar</button></p>'
+        + '<div class="contadores">'
+        + '<button class="cont vender' + (q ? '' : ' zero') + '" data-acao="lancar-vender" data-id="' + id + '" type="button">'
+        + '<em>Pra vender</em><b>' + q + '</b>' + capPend(d) + '</button>'
+        + '<button class="cont assar' + (c ? '' : ' zero') + '" data-acao="lancar-assar" data-id="' + id + '" type="button">'
+        + '<em>Pra assar</em><b>' + c + '</b><span class="cap"></span></button>'
+        + '</div>'
+        + '<div class="acoes-sabor">'
+        + '<button class="btn-linha venda" data-vender1="' + id + '" type="button">− Vendi 1</button>'
+        + '<button class="btn-linha" data-acao="assar" data-id="' + id + '" type="button">Assar</button>'
+        + '<button class="btn-linha" data-acao="massa" data-id="' + id + '" type="button">+ Massa</button>'
+        + '</div>'
+        + '</article>';
+    });
+    out += '</div>';
+    out += '<div class="secao"><h2>Sabores</h2></div>'
+      + '<button class="btn fantasma full" data-acao="novo-sabor" type="button">+ Novo sabor</button>';
     return out + rodape();
   }
 
@@ -865,20 +945,23 @@ tfoot td:first-child{background:var(--surface-2)}
       return out + rodape();
     }
     out += '<div class="tabela-wrap"><table><thead><tr>'
-      + '<th scope="col">Sabor</th><th scope="col">Qtd</th><th scope="col">Preço</th><th scope="col">Mínimo</th><th scope="col">Valor</th>'
+      + '<th scope="col">Sabor</th><th scope="col">Vender</th><th scope="col">Assar</th>'
+      + '<th scope="col">Preço</th><th scope="col">Mín.</th><th scope="col">Valor</th>'
       + '</tr></thead><tbody>';
     S.sabores.forEach(function(s){
-      var q = qtdNaTela(s);
+      var q = qtdNaTela(s), id = esc(s.id);
       out += '<tr>'
         + '<td class="nomecel"><span class="ponto" style="background:' + esc(s.cor || '#A56B3E') + '"></span>'
-        + '<button class="editar" data-acao="editar" data-id="' + esc(s.id) + '" type="button">' + esc(s.nome) + '</button></td>'
-        + '<td><input class="cel" inputmode="numeric" data-campo="qtd" data-id="' + esc(s.id) + '" value="' + q + '" aria-label="Quantidade de ' + esc(s.nome) + '"></td>'
-        + '<td><input class="cel" inputmode="decimal" data-campo="preco" data-id="' + esc(s.id) + '" value="' + precoBR(s.preco) + '" aria-label="Preço de ' + esc(s.nome) + '"></td>'
-        + '<td><input class="cel" inputmode="numeric" data-campo="minimo" data-id="' + esc(s.id) + '" value="' + nn(s.minimo) + '" aria-label="Estoque mínimo de ' + esc(s.nome) + '"></td>'
+        + '<button class="editar" data-acao="editar" data-id="' + id + '" type="button">' + esc(s.nome) + '</button></td>'
+        + '<td><input class="cel" inputmode="numeric" data-campo="qtd" data-id="' + id + '" value="' + q + '" aria-label="Pra vender: ' + esc(s.nome) + '"></td>'
+        + '<td><input class="cel" inputmode="numeric" data-campo="crus" data-id="' + id + '" value="' + nn(s.crus) + '" aria-label="Pra assar: ' + esc(s.nome) + '"></td>'
+        + '<td><input class="cel" inputmode="decimal" data-campo="preco" data-id="' + id + '" value="' + precoBR(s.preco) + '" aria-label="Preço de ' + esc(s.nome) + '"></td>'
+        + '<td><input class="cel" inputmode="numeric" data-campo="minimo" data-id="' + id + '" value="' + nn(s.minimo) + '" aria-label="Mínimo de ' + esc(s.nome) + '"></td>'
         + '<td class="valorcel">' + moeda(q * nn(s.preco)) + '</td>'
         + '</tr>';
     });
-    out += '</tbody><tfoot><tr><td>Total</td><td class="valorcel">' + t.qtd + '</td><td></td><td></td>'
+    out += '</tbody><tfoot><tr><td>Total</td><td class="valorcel">' + t.vender + '</td>'
+      + '<td class="valorcel">' + t.assar + '</td><td></td><td></td>'
       + '<td class="valorcel">' + moeda(t.valor) + '</td></tr></tfoot></table></div>';
     out += '<div class="acoes-sheet" style="margin-top:12px">'
       + '<button class="btn fantasma" data-acao="novo-sabor" type="button">+ Novo sabor</button>'
@@ -887,10 +970,23 @@ tfoot td:first-child{background:var(--surface-2)}
   }
 
   /* ============ tela: histórico ============ */
+  function movDelta(m){
+    var dV = (m.dVender == null ? nn(m.delta) : nn(m.dVender)), dA = nn(m.dAssar);
+    if (m.tipo === 'assar') return {cls:'trans', txt:'⇢ ' + Math.abs(dV)};
+    var d = dV || dA;
+    return {cls:(d > 0 ? 'mais' : 'menos'), txt:(d > 0 ? '+' : '−') + Math.abs(d)};
+  }
+  function movLinha(m){
+    if (m.tipo === 'venda' && nn(m.valor)) return 'Venda · ' + moeda(m.valor);
+    if (m.tipo === 'assar') return 'Assado · foi pra prateleira';
+    if (m.tipo === 'massa') return 'Massa nova · pra assar';
+    return ROTULO[m.tipo] || m.tipo;
+  }
   function telaHistorico(){
-    var out = '<div class="secao"><h2>Histórico</h2><span class="dica">' + S.movs.length + ' lançamento' + (S.movs.length === 1 ? '' : 's') + '</span></div>';
+    var out = '<div class="secao"><h2>Histórico</h2><span class="dica">' + S.movs.length
+      + ' lançamento' + (S.movs.length === 1 ? '' : 's') + '</span></div>';
     if (!S.movs.length){
-      out += '<div class="vazio"><p>Nada lançado ainda</p><small>Cada venda, fornada e ajuste que você fizer aparece aqui com dia e hora.</small></div>';
+      out += '<div class="vazio"><p>Nada lançado ainda</p><small>Cada venda, fornada, massa nova e ajuste que você fizer aparece aqui com dia e hora.</small></div>';
       return out + rodape();
     }
     var dias = [], mapa = {};
@@ -900,17 +996,15 @@ tfoot td:first-child{background:var(--surface-2)}
       mapa[d].push(m);
     });
     dias.forEach(function(d){
-      var r = doDia(d);
-      var quando = new Date(d + 'T12:00:00');
+      var r = doDia(d), quando = new Date(d + 'T12:00:00');
       out += '<section class="dia"><div class="dia-cab"><b>' + esc(maiusc1(DIA.format(quando))) + '</b>'
         + '<span>' + r.vendidos + ' vendido' + (r.vendidos === 1 ? '' : 's') + ' · ' + moeda(r.faturamento) + '</span></div>';
       mapa[d].forEach(function(m){
-        var mais = nn(m.delta) > 0;
+        var dt = movDelta(m);
         out += '<div class="mov">'
           + '<span class="hora">' + esc(HORA.format(new Date(m.ts))) + '</span>'
-          + '<span class="oq"><b>' + esc(m.sabor) + '</b><span>' + esc(ROTULO[m.tipo] || m.tipo)
-          + (m.tipo === 'venda' && nn(m.valor) ? ' · ' + moeda(m.valor) : '') + '</span></span>'
-          + '<span class="delta ' + (mais ? 'mais' : 'menos') + '">' + (mais ? '+' : '−') + Math.abs(nn(m.delta)) + '</span>'
+          + '<span class="oq"><b>' + esc(m.sabor) + '</b><span>' + esc(movLinha(m)) + '</span></span>'
+          + '<span class="delta ' + dt.cls + '">' + esc(dt.txt) + '</span>'
           + '<button class="apagar" data-acao="apagar-mov" data-id="' + esc(m.id) + '" aria-label="Apagar lançamento" type="button">' + ICO_LIXO + '</button>'
           + '</div>';
       });
@@ -920,58 +1014,11 @@ tfoot td:first-child{background:var(--surface-2)}
     return out + rodape();
   }
 
-  function limparTudo(){
-    var movs = S.movs.slice(), sabores = S.sabores.slice();
-    fechar();
-    var passos = sabores.map(function(x){
-      return function(){ return atualizarSabor(x.id, {qtd:0}); };
-    }).concat(movs.map(function(m){
-      return function(){ return removerMov(m.id); };
-    }));
-    if (!passos.length) return;
-    toast('Limpando…', passos.length + ' registro' + (passos.length === 1 ? '' : 's'));
-    (function proximo(i){
-      if (i >= passos.length){
-        toast('Tudo limpo', 'Estoque zerado e histórico apagado. Sabores e preços continuam.');
-        return;
-      }
-      Promise.resolve().then(passos[i]).then(function(){ proximo(i + 1); }, function(){ proximo(i + 1); });
-    })(0);
-  }
-  function abrirLimpar(){
-    var h = cabecalho('#AE3527', 'Começar do zero');
-    h += '<p class="aviso">Apaga <b>todos os ' + S.movs.length + ' lançamentos</b> do histórico e zera a quantidade dos '
-      + S.sabores.length + ' sabores. Os sabores, preços, mínimos e cores continuam como estão. Não tem como desfazer.</p>';
-    h += '<div class="acoes-sheet"><button class="btn perigo" data-acao="confirmar-limpar" type="button">Apagar e zerar</button>'
-      + '<button class="btn fantasma" data-acao="fechar" type="button">Cancelar</button></div>';
-    abrir(h);
-  }
-
   function rodape(){
     var nuvem = S.fonte === 'nuvem';
     return '<div class="rodape"><span class="sync"><span class="bolinha' + (nuvem ? '' : ' local') + '"></span>'
       + (nuvem ? 'Salvo na nuvem — abre igual em qualquer aparelho' : 'Salvo neste aparelho') + '</span>'
-      + '<span>Doceria Maria Formiga</span></div>';
-  }
-
-  /* ---- pintura pontual: mantem o botao sob o dedo vivo ---- */
-  function pintarCartao(id){
-    var cartao = document.querySelector('[data-cartao="' + id + '"]');
-    var s = acharSabor(id);
-    if (!cartao || !s){ render(); return; }
-    var q = qtdNaTela(s), d = deltaFila(id), sit = situacao(s);
-    var bq = cartao.querySelector('.qtd');
-    if (bq){
-      bq.className = 'qtd' + (q ? '' : ' zero');
-      bq.innerHTML = '<b>' + q + '</b>' + capQtd(d);
-    }
-    var pill = cartao.querySelector('.pill');
-    if (pill){ pill.className = 'pill ' + sit.cls; pill.textContent = sit.txt; }
-    var vl = cartao.querySelector('.vl');
-    if (vl) vl.textContent = moeda(q * nn(s.preco));
-    var res = document.getElementById('resumo');
-    if (res) res.innerHTML = blocoResumo();
-    atualizarBarra();
+      + '<button class="btn destrancar" data-acao="trancar" type="button">Trancar o app</button></div>';
   }
 
   /* ============ render ============ */
@@ -989,8 +1036,26 @@ tfoot td:first-child{background:var(--surface-2)}
   }
   function atualizarBarra(){
     var t = totais();
-    document.getElementById('barra-total').textContent = t.qtd;
-    document.getElementById('barra-rotulo').textContent = t.qtd === 1 ? 'cookie' : 'cookies';
+    document.getElementById('barra-total').textContent = t.vender;
+    document.getElementById('barra-rotulo').textContent = 'pra vender';
+  }
+  function pintarCartao(id){
+    var cartao = document.querySelector('[data-cartao="' + id + '"]');
+    var s = acharSabor(id);
+    if (!cartao || !s){ render(); return; }
+    var q = qtdNaTela(s), d = deltaFila(id), sit = situacao(s);
+    var alvo = cartao.querySelector('.cont.vender');
+    if (alvo){
+      alvo.className = 'cont vender' + (q ? '' : ' zero');
+      alvo.innerHTML = '<em>Pra vender</em><b>' + q + '</b>' + capPend(d);
+    }
+    var pill = cartao.querySelector('.pill');
+    if (pill){ pill.className = 'pill ' + sit.cls; pill.textContent = sit.txt; }
+    var vl = cartao.querySelector('.vl');
+    if (vl) vl.textContent = moeda(q * nn(s.preco));
+    var res = document.getElementById('resumo');
+    if (res) res.innerHTML = blocoResumo();
+    atualizarBarra();
   }
   elView.addEventListener('focusout', function(){
     setTimeout(function(){ if (sujo && !focoEmCampo()) render(); }, 60);
@@ -1034,18 +1099,26 @@ tfoot td:first-child{background:var(--surface-2)}
       + '<button class="fechar" data-acao="fechar" aria-label="Fechar" type="button">✕</button></div>';
   }
 
-  /* ---- sheet de quantidade (teclado próprio) ---- */
-  var kp = {id:null, modo:'venda', txt:''};
-  var MODOS = [
-    {k:'venda', t:'Vender', s:'sai do estoque'},
-    {k:'fornada', t:'Fornada', s:'entra no estoque'},
-    {k:'ajuste', t:'Ajustar', s:'contagem certa'}
-  ];
-  function abrirTeclado(id, modo){
+  /* ---- teclado de lançamento ---- */
+  var MODOS = {
+    vender:[
+      {k:'venda',  t:'Vender',  s:'sai da prateleira'},
+      {k:'assar',  t:'Assar',   s:'vem do pra assar'},
+      {k:'ajuste', t:'Ajustar', s:'contagem certa'}
+    ],
+    assar:[
+      {k:'massa',       t:'Massa',   s:'entra pra assar'},
+      {k:'assar',       t:'Assar',   s:'vai pra prateleira'},
+      {k:'ajusteAssar', t:'Ajustar', s:'contagem certa'}
+    ]
+  };
+  var kp = {id:null, contexto:'vender', modo:'venda', txt:''};
+
+  function abrirTeclado(id, contexto, modo){
     escoar();
     var s = acharSabor(id);
     if (!s) return;
-    kp = {id:id, modo:modo || 'venda', txt:''};
+    kp = {id:id, contexto:contexto, modo:modo || MODOS[contexto][0].k, txt:''};
     abrir(cabecalho(s.cor, s.nome) + '<div id="kp"></div>');
     pintarTeclado();
   }
@@ -1053,18 +1126,26 @@ tfoot td:first-child{background:var(--surface-2)}
     var alvo = document.getElementById('kp');
     if (!alvo) return;
     var s = acharSabor(kp.id);
-    if (!s) { fechar(); return; }
-    var atual = nn(s.qtd);
+    if (!s){ fechar(); return; }
+    var aV = nn(s.qtd), aA = nn(s.crus);
     var digitado = kp.txt === '' ? null : parseInt(kp.txt, 10);
-    var base = digitado == null ? (kp.modo === 'ajuste' ? atual : 0) : digitado;
-    var depois = kp.modo === 'ajuste' ? base : kp.modo === 'fornada' ? atual + base : Math.max(0, atual - base);
+    var padrao = kp.modo === 'ajuste' ? aV : kp.modo === 'ajusteAssar' ? aA : 0;
+    var base = digitado == null ? padrao : digitado;
+    var dV = aV, dA = aA;
+    if (kp.modo === 'venda') dV = Math.max(0, aV - base);
+    else if (kp.modo === 'massa') dA = aA + base;
+    else if (kp.modo === 'assar'){ dA = Math.max(0, aA - base); dV = aV + base; }
+    else if (kp.modo === 'ajuste') dV = base;
+    else if (kp.modo === 'ajusteAssar') dA = base;
+
     var previa;
-    if (kp.modo === 'ajuste') previa = 'Prateleira: <b>' + atual + '</b> → <b>' + depois + '</b>';
-    else if (kp.modo === 'fornada') previa = 'Prateleira: <b>' + atual + '</b> → <b>' + depois + '</b>';
-    else previa = 'Prateleira: <b>' + atual + '</b> → <b>' + depois + '</b> · ' + moeda(base * nn(s.preco));
+    if (kp.modo === 'venda') previa = 'Pra vender: <b>' + aV + '</b> → <b>' + dV + '</b> · ' + moeda(base * nn(s.preco));
+    else if (kp.modo === 'assar') previa = 'Pra assar: <b>' + aA + '</b> → <b>' + dA + '</b> · pra vender: <b>' + aV + '</b> → <b>' + dV + '</b>';
+    else if (kp.modo === 'massa' || kp.modo === 'ajusteAssar') previa = 'Pra assar: <b>' + aA + '</b> → <b>' + dA + '</b>';
+    else previa = 'Pra vender: <b>' + aV + '</b> → <b>' + dV + '</b>';
 
     var h = '<div class="modos" role="group" aria-label="Tipo de lançamento">';
-    MODOS.forEach(function(m){
+    MODOS[kp.contexto].forEach(function(m){
       h += '<button data-modo="' + m.k + '" aria-pressed="' + (kp.modo === m.k) + '" type="button">'
         + m.t + '<small>' + m.s + '</small></button>';
     });
@@ -1077,9 +1158,7 @@ tfoot td:first-child{background:var(--surface-2)}
       + '<button data-tecla="0" type="button">0</button>'
       + '<button class="aux" data-tecla="B" aria-label="Apagar último dígito" type="button">' + ICO_APAGA + '</button>';
     h += '</div>';
-    h += '<button class="btn full" data-acao="confirmar" type="button">'
-      + (kp.modo === 'venda' ? 'Registrar venda' : kp.modo === 'fornada' ? 'Registrar fornada' : 'Salvar contagem')
-      + '</button>';
+    h += '<button class="btn full" data-acao="confirmar" type="button">' + TITULO_BOTAO[kp.modo] + '</button>';
     alvo.innerHTML = h;
   }
 
@@ -1108,32 +1187,42 @@ tfoot td:first-child{background:var(--surface-2)}
     abrir(h);
   }
 
-  /* ---- sheet CSV ---- */
+  /* ---- exportar ---- */
   function montarCSV(){
-    var linhas = ['Sabor;Quantidade;Preco;Minimo;Valor em estoque'];
+    var linhas = ['Sabor;Pra vender;Pra assar;Preco;Minimo;Valor em estoque'];
     S.sabores.forEach(function(s){
       var q = nn(s.qtd);
-      linhas.push([s.nome, q, precoBR(s.preco), nn(s.minimo), precoBR(q * nn(s.preco))].join(';'));
+      linhas.push([s.nome, q, nn(s.crus), precoBR(s.preco), nn(s.minimo), precoBR(q * nn(s.preco))].join(';'));
     });
     linhas.push('');
-    linhas.push('Data;Hora;Sabor;Tipo;Quantidade;Valor');
+    linhas.push('Data;Hora;Sabor;Lancamento;Pra vender;Pra assar;Valor');
     S.movs.slice().reverse().forEach(function(m){
       var d = new Date(m.ts);
       linhas.push([
-        d.toLocaleDateString('pt-BR'), HORA.format(d), m.sabor,
-        ROTULO[m.tipo] || m.tipo, nn(m.delta), precoBR(m.valor)
+        d.toLocaleDateString('pt-BR'), HORA.format(d), m.sabor, ROTULO[m.tipo] || m.tipo,
+        (m.dVender == null ? nn(m.delta) : nn(m.dVender)), nn(m.dAssar), precoBR(m.valor)
       ].join(';'));
     });
     return linhas.join('\r\n');
   }
   function abrirCSV(){
-    var csv = montarCSV();
     var h = cabecalho('#A56B3E', 'Exportar planilha');
     h += '<p class="aviso">Arquivo CSV com ponto e vírgula e vírgula decimal — abre direto no Excel, Numbers e Google Sheets.</p>';
-    h += '<textarea class="csv" id="f-csv" readonly>' + esc(csv) + '</textarea>';
+    h += '<textarea class="csv" id="f-csv" readonly>' + esc(montarCSV()) + '</textarea>';
     h += '<div class="acoes-sheet"><button class="btn" data-acao="baixar-csv" type="button">Baixar arquivo</button>'
       + '<button class="btn fantasma" data-acao="copiar-csv" type="button">Copiar</button></div>';
     abrir(h);
+  }
+  function semDownload(){
+    toast('Use o botão Copiar', 'Aqui o download é bloqueado — cole o texto na sua planilha.');
+  }
+  function alvoManual(csv, nome){
+    try {
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
+      a.download = nome; document.body.appendChild(a); a.click(); a.remove();
+      toast('Arquivo gerado', nome);
+    } catch (e) { semDownload(); }
   }
   function baixarCSV(){
     var csv = '\ufeff' + montarCSV();
@@ -1150,37 +1239,219 @@ tfoot td:first-child{background:var(--surface-2)}
       }).catch(function(){ semDownload(); });
     } else alvoManual(csv, nome);
   }
-  function semDownload(){
-    toast('Use o botão Copiar', 'Aqui o download é bloqueado — cole o texto na sua planilha.');
-  }
-  function alvoManual(csv, nome){
-    try {
-      var a = document.createElement('a');
-      a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
-      a.download = nome; document.body.appendChild(a); a.click(); a.remove();
-      toast('Arquivo gerado', nome);
-    } catch (e) {
-      toast('Copie o texto', 'Toque em Copiar e cole na sua planilha.');
-    }
-  }
 
-  /* ---- confirmação de exclusão de lançamento ---- */
+  /* ---- apagar lançamento / limpar tudo ---- */
   function abrirApagarMov(id){
     var m = null;
     S.movs.forEach(function(x){ if (x.id === id) m = x; });
     if (!m) return;
-    var volta = nn(m.delta) > 0 ? 'sai' : 'volta para';
     var h = cabecalho(m.cor, 'Apagar lançamento');
-    h += '<p class="aviso">' + esc(ROTULO[m.tipo] || m.tipo) + ' de ' + Math.abs(nn(m.delta)) + ' ' + esc(m.sabor)
-      + '. Ao apagar, a quantidade ' + volta + ' o estoque.</p>';
+    h += '<p class="aviso"><b>' + esc(ROTULO[m.tipo] || m.tipo) + ' de ' + nn(m.qtd) + ' ' + esc(m.sabor)
+      + '</b>. Ao apagar, as quantidades voltam ao que eram antes deste lançamento.</p>';
     h += '<div class="acoes-sheet"><button class="btn perigo" data-acao="confirmar-apagar-mov" data-id="' + esc(id) + '" type="button">Apagar</button>'
       + '<button class="btn fantasma" data-acao="fechar" type="button">Manter</button></div>';
     abrir(h);
   }
+  function reverter(m){
+    var s = acharSabor(m.saborId);
+    if (!s) return Promise.resolve();
+    var dV = (m.dVender == null ? nn(m.delta) : nn(m.dVender)), dA = nn(m.dAssar);
+    return atualizarSabor(m.saborId, {
+      qtd:Math.max(0, nn(s.qtd) - dV),
+      crus:Math.max(0, nn(s.crus) - dA)
+    });
+  }
+  function limparTudo(){
+    var movs = S.movs.slice(), sabores = S.sabores.slice();
+    fechar();
+    var passos = sabores.map(function(x){
+      return function(){ return atualizarSabor(x.id, {qtd:0, crus:0}); };
+    }).concat(movs.map(function(m){
+      return function(){ return removerMov(m.id); };
+    }));
+    if (!passos.length) return;
+    toast('Limpando…', passos.length + ' registro' + (passos.length === 1 ? '' : 's'));
+    (function proximo(i){
+      if (i >= passos.length){
+        toast('Tudo limpo', 'Contagens zeradas e histórico apagado. Sabores e preços continuam.');
+        return;
+      }
+      Promise.resolve().then(passos[i]).then(function(){ proximo(i + 1); }, function(){ proximo(i + 1); });
+    })(0);
+  }
+  function abrirLimpar(){
+    var h = cabecalho('#AE3527', 'Começar do zero');
+    h += '<p class="aviso">Apaga <b>todos os ' + S.movs.length + ' lançamentos</b> do histórico e zera o "pra vender" e o "pra assar" dos '
+      + S.sabores.length + ' sabores. Sabores, preços, mínimos e cores continuam como estão. Não tem como desfazer.</p>';
+    h += '<div class="acoes-sheet"><button class="btn perigo" data-acao="confirmar-limpar" type="button">Apagar e zerar</button>'
+      + '<button class="btn fantasma" data-acao="fechar" type="button">Cancelar</button></div>';
+    abrir(h);
+  }
+
+  /* ============ trava de acesso ============ */
+  var SELO = document.querySelector('.appbar .selo').getAttribute('src');
+  var trava = {txt:'', fase:'entrar', primeira:'', hash:undefined, erro:''};
+
+  function abertoAgora(){
+    try { return Number(localStorage.getItem(CHAVE_ABERTO) || 0) > Date.now(); } catch (e) { return false; }
+  }
+  function marcarAberto(){
+    try { localStorage.setItem(CHAVE_ABERTO, String(Date.now() + JANELA)); } catch (e) {}
+  }
+  function hashSimples(t){
+    var h = 0x811c9dc5, g = 0x1000193, i;
+    for (i = 0; i < t.length; i++){
+      h = ((h ^ t.charCodeAt(i)) * 16777619) >>> 0;
+      g = ((g + t.charCodeAt(i) * 131) * 33) >>> 0;
+    }
+    return 'f' + h.toString(16) + g.toString(16);
+  }
+  function hashSenha(pin){
+    var txt = 'maria-formiga::' + pin;
+    try {
+      if (window.crypto && window.crypto.subtle && window.TextEncoder){
+        return window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt)).then(function(buf){
+          return Array.prototype.map.call(new Uint8Array(buf), function(x){
+            return ('0' + x.toString(16)).slice(-2);
+          }).join('');
+        }).catch(function(){ return hashSimples(txt); });
+      }
+    } catch (e) {}
+    return Promise.resolve(hashSimples(txt));
+  }
+  function hashLocal(){ try { return localStorage.getItem(CHAVE_SENHA) || null; } catch (e) { return null; } }
+  function prepararTrava(){
+    if (S.travaPronta) return;
+    var fim = function(h){
+      trava.hash = h;
+      trava.fase = h ? 'entrar' : 'criar';
+      S.travaPronta = true;
+      pintarTrava();
+    };
+    if (S.db){
+      S.db.doc('config/acesso').get().then(function(d){
+        var v = d.exists ? (d.data() || {}).senha : null;
+        fim(v || hashLocal());
+      }, function(){ fim(hashLocal()); });
+    } else fim(hashLocal());
+  }
+  function gravarSenha(h){
+    try { localStorage.setItem(CHAVE_SENHA, h); } catch (e) {}
+    if (S.db) return S.db.doc('config/acesso').set({senha:h, em:new Date().toISOString()}).catch(function(){});
+    return Promise.resolve();
+  }
+  function destrancar(){
+    marcarAberto();
+    S.trancado = false;
+    trava.txt = ''; trava.erro = '';
+    pintarTrava();
+    render();
+  }
+  function trancarApp(){
+    try { localStorage.removeItem(CHAVE_ABERTO); } catch (e) {}
+    escoar();
+    fechar();
+    S.trancado = true;
+    trava.txt = ''; trava.erro = '';
+    trava.fase = trava.hash ? 'entrar' : 'criar';
+    pintarTrava();
+  }
+  function tremer(){
+    var el = document.querySelector('.trava .pontos');
+    if (!el) return;
+    el.classList.remove('tremendo');
+    void el.offsetWidth;
+    el.classList.add('tremendo');
+  }
+  function pintarTrava(){
+    var el = document.getElementById('trava');
+    if (!S.trancado){ el.hidden = true; el.innerHTML = ''; document.body.classList.remove('trancado'); return; }
+    el.hidden = false;
+    document.body.classList.add('trancado');
+    var titulo, ajuda;
+    if (!S.travaPronta){ titulo = 'Maria Formiga'; ajuda = 'Carregando…'; }
+    else if (trava.fase === 'criar'){ titulo = 'Crie sua senha'; ajuda = 'Quatro números que só você sabe. É o que vai abrir o app daqui pra frente.'; }
+    else if (trava.fase === 'confirmar'){ titulo = 'Repita a senha'; ajuda = 'Só para confirmar que ficou do jeito que você quis.'; }
+    else { titulo = 'Sua senha'; ajuda = 'Quatro números.'; }
+    if (trava.erro) ajuda = trava.erro;
+
+    var h = '<img class="selo-grande" src="' + SELO + '" alt="Doceria Maria Formiga">'
+      + '<h1>' + esc(titulo) + '</h1>'
+      + '<p class="ajuda' + (trava.erro ? ' erro' : '') + '">' + esc(ajuda) + '</p>'
+      + '<div class="pontos" aria-hidden="true">';
+    for (var i = 0; i < 4; i++) h += '<i class="' + (trava.txt.length > i ? 'on' : '') + '"></i>';
+    h += '</div><div class="teclado">';
+    ['1','2','3','4','5','6','7','8','9'].forEach(function(d){
+      h += '<button data-pin="' + d + '"' + (S.travaPronta ? '' : ' disabled') + ' type="button">' + d + '</button>';
+    });
+    h += '<span></span><button data-pin="0"' + (S.travaPronta ? '' : ' disabled') + ' type="button">0</button>'
+      + '<button class="aux" data-pin="B" aria-label="Apagar" type="button">' + ICO_APAGA + '</button>';
+    h += '</div>';
+    if (S.travaPronta && trava.fase === 'entrar'){
+      h += '<button class="btn destrancar" data-pin="?" type="button">Esqueci minha senha</button>';
+    }
+    el.innerHTML = h;
+  }
+  function digitarPin(t){
+    if (!S.travaPronta) return;
+    trava.erro = '';
+    if (t === '?'){
+      trava.erro = S.fonte === 'nuvem'
+        ? 'Me peça no chat do Claude para redefinir a senha — eu apago a atual e você cria outra.'
+        : 'Limpe os dados deste site no navegador (Ajustes → Safari) e o app pede uma senha nova.';
+      pintarTrava();
+      return;
+    }
+    if (t === 'B') trava.txt = trava.txt.slice(0, -1);
+    else if (trava.txt.length < 4) trava.txt += t;
+    pintarTrava();
+    if (trava.txt.length === 4) setTimeout(conferirPin, 190);
+  }
+  function conferirPin(){
+    var pin = trava.txt;
+    if (pin.length !== 4) return;
+    if (trava.fase === 'criar'){
+      trava.primeira = pin; trava.txt = ''; trava.fase = 'confirmar';
+      pintarTrava();
+      return;
+    }
+    if (trava.fase === 'confirmar'){
+      if (pin !== trava.primeira){
+        trava.txt = ''; trava.fase = 'criar'; trava.erro = 'As duas senhas não bateram. Vamos de novo.';
+        pintarTrava(); tremer();
+        return;
+      }
+      hashSenha(pin).then(function(h){
+        trava.hash = h;
+        return gravarSenha(h);
+      }).then(function(){
+        toast('Senha criada', 'Só ela abre o app agora.');
+        destrancar();
+      });
+      return;
+    }
+    hashSenha(pin).then(function(h){
+      if (h === trava.hash){ destrancar(); return; }
+      trava.txt = ''; trava.erro = 'Senha errada. Tente outra vez.';
+      pintarTrava(); tremer();
+    });
+  }
 
   /* ============ toques ============ */
   document.addEventListener('click', function(e){
-    var b = e.target.closest ? e.target.closest('[data-acao],[data-tecla],[data-modo],[data-cor]') : null;
+    if (!e.target.closest) return;
+
+    var pin = e.target.closest('[data-pin]');
+    if (pin){ digitarPin(pin.getAttribute('data-pin')); return; }
+
+    var v1 = e.target.closest('[data-vender1]');
+    if (v1){
+      var sv = acharSabor(v1.getAttribute('data-vender1'));
+      if (sv) vender1(sv);
+      return;
+    }
+
+    var b = e.target.closest('[data-acao],[data-tecla],[data-modo],[data-cor]');
     if (!b) return;
 
     if (b.hasAttribute('data-tecla')){
@@ -1199,13 +1470,19 @@ tfoot td:first-child{background:var(--surface-2)}
 
     var acao = b.getAttribute('data-acao'), id = b.getAttribute('data-id');
     if (acao === 'fechar') return fechar();
-    if (acao === 'lancar' || acao === 'vender') return abrirTeclado(id, 'venda');
-    if (acao === 'fornada') return abrirTeclado(id, 'fornada');
-    if (acao === 'ajustar') return abrirTeclado(id, 'ajuste');
+    if (acao === 'trancar') return trancarApp();
+    if (acao === 'lancar-vender') return abrirTeclado(id, 'vender');
+    if (acao === 'lancar-assar') return abrirTeclado(id, 'assar');
+    if (acao === 'assar') return abrirTeclado(id, 'assar', 'assar');
+    if (acao === 'massa') return abrirTeclado(id, 'assar', 'massa');
     if (acao === 'editar') return abrirSabor(id);
     if (acao === 'novo-sabor') return abrirSabor(null);
     if (acao === 'csv') return abrirCSV();
     if (acao === 'baixar-csv') return baixarCSV();
+    if (acao === 'limpar') return abrirLimpar();
+    if (acao === 'confirmar-limpar'){ if (ocupado()) return; return limparTudo(); }
+    if (acao === 'apagar-mov') return abrirApagarMov(id);
+
     if (acao === 'copiar-csv'){
       var ta = document.getElementById('f-csv');
       if (!ta) return;
@@ -1213,23 +1490,23 @@ tfoot td:first-child{background:var(--surface-2)}
       var ok = false;
       try { ok = document.execCommand('copy'); } catch (err) { ok = false; }
       ta.setAttribute('readonly', 'readonly');
-      if (!ok && navigator.clipboard) navigator.clipboard.writeText(ta.value).then(function(){ toast('Copiado'); }, function(){});
-      else if (ok) toast('Copiado', 'Cole na sua planilha.');
+      if (ok) toast('Copiado', 'Cole na sua planilha.');
+      else if (navigator.clipboard) navigator.clipboard.writeText(ta.value).then(function(){ toast('Copiado'); }, function(){});
       return;
     }
     if (acao === 'criar-casa'){
       if (ocupado()) return;
-      var lista = saboresDaCasa();
-      Promise.all(lista.map(criarSabor)).then(function(){
+      Promise.all(saboresDaCasa().map(function(s){ return criarSabor(s); })).then(function(){
         toast('Sabores criados', 'Chocolatudo, Kinder, Nutella e Ninho.');
       });
       return;
     }
     if (acao === 'confirmar'){
       var s = acharSabor(kp.id);
-      var v = kp.txt === '' ? (kp.modo === 'ajuste' ? nn(s && s.qtd) : 0) : parseInt(kp.txt, 10);
       if (!s) return fechar();
-      if (kp.modo !== 'ajuste' && !v){ toast('Digite a quantidade'); return; }
+      var ajuste = kp.modo === 'ajuste' || kp.modo === 'ajusteAssar';
+      var v = kp.txt === '' ? (ajuste ? (kp.modo === 'ajuste' ? nn(s.qtd) : nn(s.crus)) : 0) : parseInt(kp.txt, 10);
+      if (!ajuste && !v){ toast('Digite a quantidade'); return; }
       fechar();
       registrar(s, kp.modo, v);
       return;
@@ -1247,68 +1524,35 @@ tfoot td:first-child{background:var(--surface-2)}
         atualizarSabor(id, {nome:nome, preco:preco, minimo:min, cor:cor});
         toast('Sabor atualizado', nome);
       } else {
-        var novoIdSabor = slug(nome);
-        if (acharSabor(novoIdSabor)) novoIdSabor += '-' + novoId().slice(-4);
+        var idNovo = slug(nome);
+        if (acharSabor(idNovo)) idNovo += '-' + novoId().slice(-4);
         var maior = 0;
         S.sabores.forEach(function(x){ maior = Math.max(maior, nn(x.ordem)); });
-        criarSabor({id:novoIdSabor, nome:nome, preco:preco, minimo:min, cor:cor, qtd:0, ordem:maior + 10});
+        criarSabor({id:idNovo, nome:nome, preco:preco, minimo:min, cor:cor, qtd:0, crus:0, ordem:maior + 10});
         toast('Sabor cadastrado', nome);
       }
       return;
     }
     if (acao === 'excluir-sabor'){
       var alvo = acharSabor(id);
-      var h = cabecalho(alvo && alvo.cor, 'Excluir ' + (alvo ? alvo.nome : 'sabor'));
-      h += '<p class="aviso">O sabor sai do estoque e da planilha. Os lançamentos antigos continuam no histórico.</p>';
-      h += '<div class="acoes-sheet"><button class="btn perigo" data-acao="confirmar-excluir-sabor" data-id="' + esc(id) + '" type="button">Excluir</button>'
+      var hx = cabecalho(alvo && alvo.cor, 'Excluir ' + (alvo ? alvo.nome : 'sabor'));
+      hx += '<p class="aviso">O sabor sai do estoque e da planilha. Os lançamentos antigos continuam no histórico.</p>';
+      hx += '<div class="acoes-sheet"><button class="btn perigo" data-acao="confirmar-excluir-sabor" data-id="' + esc(id) + '" type="button">Excluir</button>'
         + '<button class="btn fantasma" data-acao="fechar" type="button">Manter</button></div>';
-      abrir(h);
+      abrir(hx);
       return;
     }
     if (acao === 'confirmar-excluir-sabor'){ if (ocupado()) return; fechar(); removerSabor(id); toast('Sabor excluído'); return; }
-    if (acao === 'limpar') return abrirLimpar();
-    if (acao === 'confirmar-limpar'){ if (ocupado()) return; return limparTudo(); }
-    if (acao === 'apagar-mov') return abrirApagarMov(id);
     if (acao === 'confirmar-apagar-mov'){
       if (ocupado()) return;
       var mv = null;
       S.movs.forEach(function(x){ if (x.id === id) mv = x; });
       fechar();
       if (!mv) return;
-      var sb = acharSabor(mv.saborId);
-      Promise.resolve(sb ? atualizarSabor(mv.saborId, {qtd:Math.max(0, nn(sb.qtd) - nn(mv.delta))}) : null)
-        .then(function(){ return removerMov(id); })
+      reverter(mv).then(function(){ return removerMov(id); })
         .then(function(){ toast('Lançamento apagado'); });
       return;
     }
-  });
-
-  /* toques repetidos no stepper (segurar acelera) */
-  var repTimer = null, repInt = null;
-  function pararRep(){ clearTimeout(repTimer); clearInterval(repInt); repTimer = repInt = null; }
-  document.addEventListener('pointerdown', function(e){
-    var b = e.target.closest ? e.target.closest('[data-rep]') : null;
-    if (!b) return;
-    var tipo = b.getAttribute('data-rep'), id = b.getAttribute('data-id');
-    var s0 = acharSabor(id);
-    if (!s0) return;
-    if (tipo === 'venda' && qtdNaTela(s0) <= 0){
-      toast('Sem estoque', s0.nome + ' está zerado — registre uma fornada.');
-      return;
-    }
-    var contados = 0;
-    var passo = function(){
-      var s = acharSabor(id);
-      if (!s || ++contados > 240) return pararRep();
-      if (tipo === 'venda' && qtdNaTela(s) <= 0) return pararRep();
-      enfileirar(s, tipo, 1);
-    };
-    passo();
-    pararRep();
-    repTimer = setTimeout(function(){ repInt = setInterval(passo, 170); }, 480);
-  });
-  ['pointerup', 'pointercancel', 'pointerleave', 'blur'].forEach(function(ev){
-    document.addEventListener(ev, pararRep, true);
   });
 
   /* células da planilha */
@@ -1319,13 +1563,17 @@ tfoot td:first-child{background:var(--surface-2)}
     var s = acharSabor(id);
     if (!s) return;
     if (ocupado()){ render(); return; }
+    var v = lerNumeroBR(el.value);
     if (campo === 'qtd'){
-      var v = Math.max(0, Math.round(lerNumeroBR(el.value)));
+      v = Math.max(0, Math.round(v));
       if (v !== nn(s.qtd)) registrar(s, 'ajuste', v); else render();
+    } else if (campo === 'crus'){
+      v = Math.max(0, Math.round(v));
+      if (v !== nn(s.crus)) registrar(s, 'ajusteAssar', v); else render();
     } else if (campo === 'preco'){
-      atualizarSabor(id, {preco:lerNumeroBR(el.value)});
+      atualizarSabor(id, {preco:v});
     } else if (campo === 'minimo'){
-      atualizarSabor(id, {minimo:Math.max(0, Math.round(lerNumeroBR(el.value)))});
+      atualizarSabor(id, {minimo:Math.max(0, Math.round(v))});
     }
   });
 
@@ -1333,9 +1581,11 @@ tfoot td:first-child{background:var(--surface-2)}
   document.addEventListener('visibilitychange', function(){ if (document.hidden) escoar(); });
 
   /* ============ partida ============ */
+  S.trancado = !abertoAgora();
   iniciarLocal();
+  pintarTrava();
   render();
-  conectarNuvem();
+  if (S.aguardando) conectarNuvem(); else prepararTrava();
 })();
 </script>
 

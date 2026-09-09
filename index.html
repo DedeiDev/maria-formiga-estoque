@@ -263,6 +263,10 @@ main{flex:1;padding:14px 16px calc(96px + env(safe-area-inset-bottom))}
 .cont .cap{min-height:1.05em;font-size:.63rem;font-weight:700;color:var(--caramel);line-height:1.05}
 .cont.assar{border-style:dashed}
 .cont.assar b{color:var(--caramel)}
+/* o "pra assar" e painel de leitura: quem mexe nele e a planilha */
+.cont.estatico{background:transparent}
+.cont.estatico:active{transform:none;background:transparent}
+.cont.estatico .cap{color:var(--ink-faint);font-weight:600}
 
 .acoes-sabor{
   grid-area:acoes;display:flex;gap:8px;margin-top:10px;
@@ -898,7 +902,7 @@ body.trancado .app,body.trancado .abas{visibility:hidden}
   }
   function telaEstoque(){
     var out = '<section class="resumo" id="resumo">' + blocoResumo() + '</section>';
-    out += '<div class="secao"><h2>Meus cookies</h2><span class="dica">toque nos números pra lançar</span></div>';
+    out += '<div class="secao"><h2>Meus cookies</h2><span class="dica">toque no número pra lançar</span></div>';
 
     if (!S.sabores.length){
       out += '<div class="vazio"><p>Nenhum sabor ainda</p><small>Cadastre os sabores que você faz e o estoque passa a andar com você.</small>'
@@ -919,13 +923,11 @@ body.trancado .app,body.trancado .abas{visibility:hidden}
         + '<div class="contadores">'
         + '<button class="cont vender' + (q ? '' : ' zero') + '" data-acao="lancar-vender" data-id="' + id + '" type="button">'
         + '<em>Pra vender</em><b>' + q + '</b>' + capPend(d) + '</button>'
-        + '<button class="cont assar' + (c ? '' : ' zero') + '" data-acao="lancar-assar" data-id="' + id + '" type="button">'
-        + '<em>Pra assar</em><b>' + c + '</b><span class="cap"></span></button>'
+        + '<div class="cont assar estatico' + (c ? '' : ' zero') + '">'
+        + '<em>Pra assar</em><b>' + c + '</b><span class="cap">na planilha</span></div>'
         + '</div>'
         + '<div class="acoes-sabor">'
         + '<button class="btn-linha venda" data-vender1="' + id + '" type="button">− Vendi 1</button>'
-        + '<button class="btn-linha" data-acao="assar" data-id="' + id + '" type="button">Assar</button>'
-        + '<button class="btn-linha" data-acao="massa" data-id="' + id + '" type="button">+ Massa</button>'
         + '</div>'
         + '</article>';
     });
@@ -938,7 +940,7 @@ body.trancado .app,body.trancado .abas{visibility:hidden}
   /* ============ tela: planilha ============ */
   function telaPlanilha(){
     var t = totais(), out = '';
-    out += '<div class="secao"><h2>Planilha</h2><span class="dica">toque e escreva · arraste o lado</span></div>';
+    out += '<div class="secao"><h2>Planilha</h2><span class="dica">o controle do pra assar é aqui</span></div>';
     if (!S.sabores.length){
       out += '<div class="vazio"><p>Planilha vazia</p><small>Cadastre um sabor para começar a preencher.</small>'
         + '<button class="btn" data-acao="novo-sabor" type="button">+ Novo sabor</button></div>';
@@ -1103,13 +1105,7 @@ body.trancado .app,body.trancado .abas{visibility:hidden}
   var MODOS = {
     vender:[
       {k:'venda',  t:'Vender',  s:'sai da prateleira'},
-      {k:'assar',  t:'Assar',   s:'vem do pra assar'},
       {k:'ajuste', t:'Ajustar', s:'contagem certa'}
-    ],
-    assar:[
-      {k:'massa',       t:'Massa',   s:'entra pra assar'},
-      {k:'assar',       t:'Assar',   s:'vai pra prateleira'},
-      {k:'ajusteAssar', t:'Ajustar', s:'contagem certa'}
     ]
   };
   var kp = {id:null, contexto:'vender', modo:'venda', txt:''};
@@ -1144,8 +1140,10 @@ body.trancado .app,body.trancado .abas{visibility:hidden}
     else if (kp.modo === 'massa' || kp.modo === 'ajusteAssar') previa = 'Pra assar: <b>' + aA + '</b> → <b>' + dA + '</b>';
     else previa = 'Pra vender: <b>' + aV + '</b> → <b>' + dV + '</b>';
 
-    var h = '<div class="modos" role="group" aria-label="Tipo de lançamento">';
-    MODOS[kp.contexto].forEach(function(m){
+    var lista = MODOS[kp.contexto];
+    var h = '<div class="modos" role="group" aria-label="Tipo de lançamento" style="grid-template-columns:repeat('
+      + lista.length + ',1fr)">';
+    lista.forEach(function(m){
       h += '<button data-modo="' + m.k + '" aria-pressed="' + (kp.modo === m.k) + '" type="button">'
         + m.t + '<small>' + m.s + '</small></button>';
     });
@@ -1472,9 +1470,6 @@ body.trancado .app,body.trancado .abas{visibility:hidden}
     if (acao === 'fechar') return fechar();
     if (acao === 'trancar') return trancarApp();
     if (acao === 'lancar-vender') return abrirTeclado(id, 'vender');
-    if (acao === 'lancar-assar') return abrirTeclado(id, 'assar');
-    if (acao === 'assar') return abrirTeclado(id, 'assar', 'assar');
-    if (acao === 'massa') return abrirTeclado(id, 'assar', 'massa');
     if (acao === 'editar') return abrirSabor(id);
     if (acao === 'novo-sabor') return abrirSabor(null);
     if (acao === 'csv') return abrirCSV();

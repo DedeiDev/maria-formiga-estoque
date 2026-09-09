@@ -29,32 +29,30 @@ Cada sabor tem duas contagens separadas:
 - **Pra assar** — massa esperando o forno. Não conta como valor em estoque
   porque ainda não dá para vender.
 
-Os lançamentos ligam as duas:
+Cada aba cuida de um lado:
 
-| Lançamento | Pra vender | Pra assar |
-| --- | --- | --- |
-| **Venda** | − | — |
-| **Assado** | + | − |
-| **Massa nova** | — | + |
-| **Ajustar** | define a contagem certa de um dos dois | |
+| Onde | O que se faz |
+| --- | --- |
+| **Estoque** | vender (é a rotina do balcão) e corrigir o pra vender |
+| **Planilha** | o controle do **pra assar**, e também do pra vender |
 
-Quando o "pra vender" chega a zero mas ainda tem massa, o selo do sabor avisa
-**Precisa assar** em vez de **Acabou**.
+No cartão do Estoque o "pra assar" aparece só como número, para consulta — quem
+mexe nele é a planilha. Quando o "pra vender" chega a zero mas ainda tem massa,
+o selo do sabor avisa **Precisa assar** em vez de **Acabou**.
 
 ## O que dá para fazer
 
 - **Estoque** — um cartão por sabor com as duas contagens em número grande,
   preço, valor na prateleira e selo de situação (`Ok`, `Acabando`,
-  `Precisa assar`, `Acabou`).
+  `Precisa assar`, `Acabou`). É a tela do balcão, com uma ação só:
   - `− Vendi 1` vende uma unidade. Toques seguidos são agrupados em **um único
     lançamento** (três toques = uma venda de 3), então o histórico não enche.
-  - `Assar` manda do "pra assar" para o "pra vender". `+ Massa` registra massa
-    nova.
-  - Tocar em qualquer uma das duas contagens abre o teclado de lançamento, com
-    prévia do antes → depois e do valor antes de confirmar.
+  - Tocar no número do **pra vender** abre o teclado para vender uma quantidade
+    maior ou ajustar a contagem, com prévia do antes → depois e do valor antes
+    de confirmar.
   - Cada lançamento mostra um aviso com **Desfazer**.
-- **Planilha** — a mesma informação em tabela: pra vender, pra assar, preço e
-  mínimo editáveis direto na célula, linha de total e exportação em CSV
+- **Planilha** — onde se controla o **pra assar**: pra vender, pra assar, preço
+  e mínimo editáveis direto na célula, linha de total e exportação em CSV
   (`;` e vírgula decimal, abre no Excel, Numbers e Google Sheets).
 - **Histórico** — todos os lançamentos agrupados por dia, com o total vendido e
   o faturamento do dia. Apagar um lançamento devolve as quantidades ao que eram.

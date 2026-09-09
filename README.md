@@ -40,6 +40,34 @@ No cartão do Estoque o "pra assar" aparece só como número, para consulta — 
 mexe nele é a planilha. Quando o "pra vender" chega a zero mas ainda tem massa,
 o selo do sabor avisa **Precisa assar** em vez de **Acabou**.
 
+## Fechamento do dia
+
+O dia comercial fecha às **21:10**. A aba **Histórico** abre com o relatório de
+como foi o dia:
+
+- **Em andamento** antes das 21:10, **Dia fechado · 21:10** depois — o app
+  percebe a virada mesmo com a tela aberta.
+- Unidades vendidas e faturamento do dia em número grande.
+- **Comparativos**: contra ontem (com a diferença em reais e em unidades),
+  contra a média por dia dos 7 dias anteriores, qual sabor mais vendeu e quantos
+  ajustes de contagem houve.
+- **Por sabor**, do que mais faturou para o que menos, com nota do que foi para
+  o forno e dos ajustes.
+- **Repor**: aviso dos sabores abaixo do mínimo e dos que zeraram mas ainda têm
+  massa esperando o forno.
+- Os lançamentos do dia, escondidos atrás de um toque.
+
+Passadas as 21:10, um ponto aparece na aba Histórico até você olhar o
+fechamento. Para mudar o horário, é a linha `var FECHA_H = 21, FECHA_M = 10;`
+no `index.html`.
+
+### O dia é o de quem vende, não o de Greenwich
+
+Cada lançamento guarda o campo `dia` com a data **local** de quem registrou,
+além do `ts` em UTC. Sem isso, no fuso do Brasil (UTC−3) uma venda às 21h já
+cairia no dia seguinte em UTC e sumiria do fechamento — justamente as vendas do
+fim da noite.
+
 ## O que dá para fazer
 
 - **Estoque** — um cartão por sabor com as duas contagens em número grande,
@@ -54,10 +82,12 @@ o selo do sabor avisa **Precisa assar** em vez de **Acabou**.
 - **Planilha** — onde se controla o **pra assar**: pra vender, pra assar, preço
   e mínimo editáveis direto na célula, linha de total e exportação em CSV
   (`;` e vírgula decimal, abre no Excel, Numbers e Google Sheets).
-- **Histórico** — todos os lançamentos agrupados por dia, com o total vendido e
-  o faturamento do dia. Apagar um lançamento devolve as quantidades ao que eram.
-  No fim da aba, **Limpar tudo e começar do zero** apaga o histórico e zera as
-  contagens, mantendo sabores e preços — feito para depois de testar.
+- **Histórico** — abre com o **fechamento do dia** (veja abaixo), seguido dos
+  totais de 7 dias e do mês e dos **dias anteriores**, cada um com o seu
+  fechamento por sabor e os lançamentos escondidos atrás de um toque. Apagar um
+  lançamento devolve as quantidades ao que eram. No fim da aba, **Limpar tudo e
+  começar do zero** apaga o histórico e zera as contagens, mantendo sabores e
+  preços — feito para depois de testar.
 - **Sabores** — cadastrar, renomear, mudar preço, definir o mínimo que dispara o
   aviso de "acabando" e escolher a cor do sabor.
 

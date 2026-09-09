@@ -315,20 +315,122 @@ tfoot td:first-child{background:var(--surface-2)}
 .valorcel{font-family:var(--font-num);font-variant-numeric:tabular-nums}
 
 /* ---------- histórico ---------- */
-.dia{margin-bottom:18px}
+.faixa{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-md);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:16px;
+}
+.faixa > div{padding:10px 6px;text-align:center;border-right:1px solid var(--line)}
+.faixa > div:last-child{border-right:0}
+.faixa em{
+  display:block;font-style:normal;font-size:.57rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.11em;color:var(--ink-faint);
+}
+.faixa b{
+  display:block;font-family:var(--font-display);
+  font-variation-settings:"SOFT" 60,"opsz" 48;font-weight:800;
+  font-size:1.45rem;line-height:1.15;font-variant-numeric:tabular-nums;letter-spacing:-.02em;
+}
+.faixa small{display:block;font-size:.69rem;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+
+/* fechamento do dia: o relatório de como foi o dia */
+.fecho{
+  background:var(--surface);border:1px solid var(--line);
+  border-top:3px solid var(--accent);
+  border-radius:var(--r-lg);padding:13px 14px 12px;
+  box-shadow:var(--shadow-md);margin-bottom:16px;
+}
+.fecho-topo{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.fecho-topo em{
+  font-style:normal;font-size:.6rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.13em;color:var(--ink-faint);
+}
+.fecho .estado{
+  font-size:.62rem;font-weight:700;padding:3px 9px;border-radius:var(--r-pill);white-space:nowrap;
+}
+.fecho .estado.aberto{background:var(--warn-bg);color:var(--warn)}
+.fecho .estado.fechado{background:var(--ok-bg);color:var(--ok)}
+.fecho h3{
+  margin:3px 0 12px;font-family:var(--font-display);
+  font-variation-settings:"SOFT" 55,"opsz" 30;font-weight:700;
+  font-size:1.02rem;line-height:1.2;
+}
+.fecho-nums{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.fecho-nums > div{
+  background:var(--surface-2);border-radius:var(--r-md);
+  padding:9px 11px;border:1px solid var(--line);
+}
+.fecho-nums b{
+  display:block;font-family:var(--font-display);
+  font-variation-settings:"SOFT" 60,"opsz" 60;font-weight:800;
+  font-size:1.55rem;line-height:1.12;font-variant-numeric:tabular-nums;letter-spacing:-.025em;
+}
+.fecho-nums em{
+  font-style:normal;font-size:.6rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.11em;color:var(--ink-faint);
+}
+.comp{
+  display:flex;flex-direction:column;gap:6px;
+  padding:11px 0;margin-bottom:11px;
+  border-top:1px dashed var(--line);border-bottom:1px dashed var(--line);
+}
+.comp .l{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:baseline;font-size:.79rem}
+.comp .l span{color:var(--ink-soft)}
+.comp .l b{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+.comp .l b.sobe{color:var(--ok)}
+.comp .l b.desce{color:var(--crit)}
+.sem-mov{margin:0;font-size:.82rem;color:var(--ink-faint);text-align:center;padding:6px 0 2px}
+.alerta{
+  display:flex;gap:7px;align-items:baseline;
+  margin-top:11px;padding:9px 11px;border-radius:12px;
+  background:var(--warn-bg);color:var(--warn);
+  font-size:.77rem;font-weight:600;line-height:1.35;
+}
+.alerta b{flex:none;font-weight:800}
+
+.dia{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
+  padding:11px 12px;box-shadow:var(--shadow-sm);margin-bottom:10px;
+}
 .dia-cab{
   display:flex;align-items:baseline;justify-content:space-between;gap:10px;
-  padding:0 2px 7px;margin-bottom:0;border-bottom:1.5px solid var(--line-strong);
+  padding:0 0 8px;margin-bottom:9px;border-bottom:1px solid var(--line);
 }
 .dia-cab b{
   font-family:var(--font-display);font-variation-settings:"SOFT" 55,"opsz" 24;
   font-weight:700;font-size:.95rem;
 }
 .dia-cab span{font-size:.74rem;color:var(--ink-soft);font-variant-numeric:tabular-nums}
-.mov{
-  display:grid;grid-template-columns:52px 1fr auto auto;
-  align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--line);
+/* fechamento do dia, sabor por sabor */
+.dia-sabores{display:flex;flex-direction:column;gap:7px}
+.ds{
+  display:grid;grid-template-columns:minmax(0,1fr) auto auto;
+  align-items:baseline;gap:9px;font-size:.84rem;
 }
+.ds .nm{min-width:0;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;font-weight:600}
+.ds .ponto{
+  width:9px;height:9px;border-radius:3px;flex:none;
+  box-shadow:inset 0 0 0 1.5px var(--ring);align-self:center;
+}
+.ds .ex{font-style:normal;font-size:.71rem;font-weight:500;color:var(--ink-faint)}
+.ds > b{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+.ds > i{
+  font-style:normal;color:var(--ink-soft);font-variant-numeric:tabular-nums;
+  min-width:76px;text-align:right;white-space:nowrap;
+}
+.ver-lanc{
+  display:flex;align-items:center;justify-content:center;gap:6px;width:100%;
+  min-height:38px;margin-top:9px;border-top:1px dashed var(--line);
+  font-size:.75rem;font-weight:700;color:var(--caramel);
+}
+.ver-lanc .seta{font-size:.7rem}
+.lancs{margin-top:2px}
+
+.mov{
+  display:grid;grid-template-columns:46px 1fr auto auto;
+  align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);
+}
+.lancs .mov:last-child{border-bottom:0;padding-bottom:0}
 .mov .hora{font-family:var(--font-num);font-size:.76rem;color:var(--ink-faint)}
 .mov .oq{min-width:0}
 .mov .oq b{display:block;font-size:.9rem;font-weight:600;line-height:1.2}
@@ -393,6 +495,7 @@ tfoot td:first-child{background:var(--surface-2)}
 }
 .abas .in{display:flex;gap:2px;width:100%;max-width:620px}
 .abas button{
+  position:relative;
   flex:1;min-height:52px;border-radius:14px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
   color:var(--ink-faint);font-size:.66rem;font-weight:700;
@@ -400,6 +503,11 @@ tfoot td:first-child{background:var(--surface-2)}
 }
 .abas button svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .abas button[aria-selected="true"]{color:var(--accent);background:var(--surface)}
+.abas .badge{
+  position:absolute;top:8px;left:calc(50% + 9px);
+  width:8px;height:8px;border-radius:50%;background:var(--accent);
+  box-shadow:0 0 0 2px var(--bg);
+}
 .abas button:active{background:var(--surface-2)}
 
 /* ---------- bottom sheet ---------- */
@@ -651,6 +759,7 @@ body.trancado .app,body.trancado .abas{visibility:hidden}
   var CHAVE = 'mf.cookies.v1', CHAVE_SENHA = 'mf.senha.v1', CHAVE_ABERTO = 'mf.aberto.v1';
   var JANELA = 12 * 60 * 60 * 1000;
   var sujo = false, ultimoMov = null, tToast = null;
+  var diasAbertos = {};
 
   function ordenar(){ S.sabores.sort(function(a, b){ return nn(a.ordem) - nn(b.ordem); }); }
   function corpo(s){
@@ -786,7 +895,7 @@ body.trancado .app,body.trancado .abas{visibility:hidden}
       dVender:deltaV, dAssar:deltaA, preco:preco,
       valor:(tipo === 'venda' ? Math.abs(deltaV) * preco : 0),
       antesVender:aV, depoisVender:dV, antesAssar:aA, depoisAssar:dA,
-      ts:new Date().toISOString()
+      dia:hojeISO(), ts:new Date().toISOString()
     };
     var patch = {};
     if (deltaV) patch.qtd = dV;
@@ -866,19 +975,100 @@ body.trancado .app,body.trancado .abas{visibility:hidden}
     });
     return t;
   }
-  function hojeISO(){
-    var d = new Date(), p = function(n){ return (n < 10 ? '0' : '') + n; };
-    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
-  }
+  function hojeISO(){ return diaISO(new Date()); }
   function doDia(dia){
     var r = {vendidos:0, faturamento:0, assados:0};
     S.movs.forEach(function(m){
-      if (String(m.ts).slice(0, 10) !== dia) return;
+      if (diaDe(m) !== dia) return;
       if (m.tipo === 'venda'){ r.vendidos += nn(m.qtd); r.faturamento += nn(m.valor); }
       if (m.tipo === 'assar') r.assados += nn(m.qtd);
     });
     return r;
   }
+  function diaISO(d){
+    var p = function(n){ return (n < 10 ? '0' : '') + n; };
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+  }
+  /* o dia do lançamento é o dia de quem vendeu, não o de Greenwich: às 21h no
+     Brasil o ts em UTC já virou amanhã. Registros antigos caem no ts. */
+  function diaDe(m){ return m.dia || diaISO(new Date(m.ts)); }
+  function somaDesde(dias){
+    var lim = new Date(); lim.setHours(0, 0, 0, 0);
+    lim.setDate(lim.getDate() - (dias - 1));
+    var corte = diaISO(lim), r = {vendidos:0, faturamento:0};
+    S.movs.forEach(function(m){
+      if (m.tipo !== 'venda' || diaDe(m) < corte) return;
+      r.vendidos += nn(m.qtd); r.faturamento += nn(m.valor);
+    });
+    return r;
+  }
+  function somaMes(){
+    var pref = hojeISO().slice(0, 7), r = {vendidos:0, faturamento:0};
+    S.movs.forEach(function(m){
+      if (m.tipo !== 'venda' || diaDe(m).slice(0, 7) !== pref) return;
+      r.vendidos += nn(m.qtd); r.faturamento += nn(m.valor);
+    });
+    return r;
+  }
+  /* fechamento de um dia: o que cada sabor fez, do que mais vendeu pro que menos */
+  function fechamento(dia){
+    var por = {}, ordem = [], tot = {vendidos:0, faturamento:0, ajustes:0, lancamentos:0};
+    S.movs.forEach(function(m){
+      if (diaDe(m) !== dia) return;
+      var k = m.saborId || m.sabor;
+      if (!por[k]){
+        por[k] = {nome:m.sabor, cor:m.cor, vendidos:0, faturamento:0, ajustes:0, fornos:0};
+        ordem.push(k);
+      }
+      var x = por[k];
+      tot.lancamentos++;
+      if (m.tipo === 'venda'){
+        x.vendidos += nn(m.qtd); x.faturamento += nn(m.valor);
+        tot.vendidos += nn(m.qtd); tot.faturamento += nn(m.valor);
+      } else if (m.tipo === 'assar' || m.tipo === 'massa'){
+        x.fornos += nn(m.qtd);
+      } else { x.ajustes++; tot.ajustes++; }
+    });
+    ordem.sort(function(a, b){
+      return (por[b].faturamento - por[a].faturamento) || (por[b].vendidos - por[a].vendidos);
+    });
+    return {tot:tot, ordem:ordem, por:por};
+  }
+
+  /* o dia comercial fecha as 21:10 */
+  var FECHA_H = 21, FECHA_M = 10;
+  function horaFecho(){ return (FECHA_H < 10 ? '0' : '') + FECHA_H + ':' + (FECHA_M < 10 ? '0' : '') + FECHA_M; }
+  function jaFechou(){
+    var d = new Date();
+    return d.getHours() > FECHA_H || (d.getHours() === FECHA_H && d.getMinutes() >= FECHA_M);
+  }
+  function diaMenos(n){
+    var d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() - n);
+    return diaISO(d);
+  }
+  /* média por dia dos n dias anteriores a hoje */
+  function mediaAnterior(n){
+    var hoje = hojeISO(), corte = diaMenos(n), t = {vendidos:0, faturamento:0, temDados:false};
+    S.movs.forEach(function(m){
+      if (m.tipo !== 'venda') return;
+      var d = diaDe(m);
+      if (d >= hoje || d < corte) return;
+      t.vendidos += nn(m.qtd); t.faturamento += nn(m.valor); t.temDados = true;
+    });
+    t.vendidos = t.vendidos / n; t.faturamento = t.faturamento / n;
+    return t;
+  }
+  function precisamAtencao(){
+    var lista = [];
+    S.sabores.forEach(function(s){
+      var q = nn(s.qtd), c = nn(s.crus), min = nn(s.minimo);
+      if (q <= 0 && c > 0) lista.push(s.nome + ' zerado, ' + c + ' pra assar');
+      else if (q <= 0) lista.push(s.nome + ' zerado');
+      else if (min > 0 && q <= min) lista.push(s.nome + ' com ' + q + ' (mínimo ' + min + ')');
+    });
+    return lista;
+  }
+
   function situacao(s){
     var q = qtdNaTela(s), c = nn(s.crus), min = nn(s.minimo);
     if (q <= 0 && c > 0) return {cls:'warn', txt:'Precisa assar'};
@@ -984,34 +1174,159 @@ body.trancado .app,body.trancado .abas{visibility:hidden}
     if (m.tipo === 'massa') return 'Massa nova · pra assar';
     return ROTULO[m.tipo] || m.tipo;
   }
+  function linhaComp(rotulo, valor, classe){
+    return '<div class="l"><span>' + esc(rotulo) + '</span><b' + (classe ? ' class="' + classe + '"' : '') + '>'
+      + valor + '</b></div>';
+  }
+  function blocoFechamento(){
+    var hoje = hojeISO(), f = fechamento(hoje), fechado = jaFechou();
+    var quando = new Date(hoje + 'T12:00:00');
+    var out = '<section class="fecho">'
+      + '<div class="fecho-topo"><em>Fechamento de hoje</em>'
+      + '<span class="estado ' + (fechado ? 'fechado' : 'aberto') + '">'
+      + (fechado ? 'Dia fechado · ' + horaFecho() : 'Em andamento · fecha ' + horaFecho()) + '</span></div>'
+      + '<h3>' + esc(maiusc1(DIA.format(quando))) + '</h3>';
+
+    out += '<div class="fecho-nums">'
+      + '<div><b>' + f.tot.vendidos + '</b><em>vendido' + (f.tot.vendidos === 1 ? '' : 's') + '</em></div>'
+      + '<div><b>' + moeda(f.tot.faturamento) + '</b><em>faturamento</em></div>'
+      + '</div>';
+
+    var ontem = doDia(diaMenos(1)), media = mediaAnterior(7);
+    out += '<div class="comp">';
+    if (ontem.vendidos || ontem.faturamento){
+      var dq = f.tot.vendidos - ontem.vendidos, dv = f.tot.faturamento - ontem.faturamento;
+      out += linhaComp('Ontem: ' + ontem.vendidos + ' un · ' + moeda(ontem.faturamento),
+        (dv >= 0 ? '+' : '−') + moeda(Math.abs(dv)).replace('R$ ', 'R$ ') + ' · ' + (dq >= 0 ? '+' : '−') + Math.abs(dq) + ' un',
+        dv > 0 ? 'sobe' : dv < 0 ? 'desce' : '');
+    } else {
+      out += linhaComp('Ontem', 'sem vendas', '');
+    }
+    if (media.temDados){
+      out += linhaComp('Média dos 7 dias anteriores',
+        media.vendidos.toFixed(1).replace('.', ',') + ' un · ' + moeda(media.faturamento) + '/dia', '');
+    }
+    if (f.ordem.length && f.por[f.ordem[0]].vendidos){
+      var top = f.por[f.ordem[0]];
+      out += linhaComp('Mais vendido hoje', esc(top.nome) + ' · ' + top.vendidos + ' un', '');
+    }
+    if (f.tot.ajustes) out += linhaComp('Ajustes de contagem', f.tot.ajustes, '');
+    out += '</div>';
+
+    if (f.ordem.length){
+      out += '<div class="dia-sabores">';
+      f.ordem.forEach(function(k){
+        var x = f.por[k], extras = [];
+        if (x.fornos) extras.push(x.fornos + ' no forno');
+        if (x.ajustes) extras.push(x.ajustes + (x.ajustes === 1 ? ' ajuste' : ' ajustes'));
+        out += '<div class="ds">'
+          + '<span class="nm"><span class="ponto" style="background:' + esc(x.cor || '#A56B3E') + '"></span>'
+          + esc(x.nome) + (extras.length ? '<i class="ex">' + esc(extras.join(' · ')) + '</i>' : '') + '</span>'
+          + '<b>' + (x.vendidos ? x.vendidos + ' vend.' : '—') + '</b>'
+          + '<i>' + (x.faturamento ? moeda(x.faturamento) : '') + '</i>'
+          + '</div>';
+      });
+      out += '</div>';
+    } else {
+      out += '<p class="sem-mov">Nenhum lançamento hoje' + (fechado ? '.' : ' até agora.') + '</p>';
+    }
+
+    var alertas = precisamAtencao();
+    if (alertas.length){
+      out += '<div class="alerta"><b>Repor:</b><span>' + esc(alertas.join(' · ')) + '</span></div>';
+    }
+
+    var n = (f.tot.lancamentos || 0);
+    if (n){
+      var aberto = !!diasAbertos[hoje];
+      out += '<button class="ver-lanc" data-acao="abrir-dia" data-dia="' + esc(hoje) + '" aria-expanded="' + aberto + '" type="button">'
+        + (aberto ? 'esconder' : 'ver') + (n === 1 ? ' o lançamento' : ' os ' + n + ' lançamentos')
+        + '<span class="seta">' + (aberto ? '▴' : '▾') + '</span></button>';
+      if (aberto) out += '<div class="lancs">' + listaMovs(movsDoDia(hoje)) + '</div>';
+    }
+    return out + '</section>';
+  }
+
+  function movsDoDia(dia){
+    return S.movs.filter(function(m){ return diaDe(m) === dia; });
+  }
+  function listaMovs(lista){
+    var out = '';
+    lista.forEach(function(m){
+      var dt = movDelta(m);
+      out += '<div class="mov">'
+        + '<span class="hora">' + esc(HORA.format(new Date(m.ts))) + '</span>'
+        + '<span class="oq"><b>' + esc(m.sabor) + '</b><span>' + esc(movLinha(m)) + '</span></span>'
+        + '<span class="delta ' + dt.cls + '">' + esc(dt.txt) + '</span>'
+        + '<button class="apagar" data-acao="apagar-mov" data-id="' + esc(m.id) + '" aria-label="Apagar lançamento" type="button">' + ICO_LIXO + '</button>'
+        + '</div>';
+    });
+    return out;
+  }
+
   function telaHistorico(){
     var out = '<div class="secao"><h2>Histórico</h2><span class="dica">' + S.movs.length
       + ' lançamento' + (S.movs.length === 1 ? '' : 's') + '</span></div>';
     if (!S.movs.length){
-      out += '<div class="vazio"><p>Nada lançado ainda</p><small>Cada venda, fornada, massa nova e ajuste que você fizer aparece aqui com dia e hora.</small></div>';
+      out += blocoFechamento()
+        + '<div class="vazio"><p>Nada lançado ainda</p><small>Cada venda e cada ajuste que você fizer aparece aqui, fechado por dia e por sabor.</small></div>';
       return out + rodape();
     }
+
+    out += blocoFechamento();
+
+    var h7 = somaDesde(7), hm = somaMes();
+    out += '<div class="faixa">'
+      + '<div><em>7 dias</em><b>' + h7.vendidos + '</b><small>' + moeda(h7.faturamento) + '</small></div>'
+      + '<div><em>Este mês</em><b>' + hm.vendidos + '</b><small>' + moeda(hm.faturamento) + '</small></div>'
+      + '</div>';
+
     var dias = [], mapa = {};
     S.movs.forEach(function(m){
-      var d = String(m.ts).slice(0, 10);
+      var d = diaDe(m);
       if (!mapa[d]){ mapa[d] = []; dias.push(d); }
       mapa[d].push(m);
     });
+    dias.sort().reverse();
+    var hojeStr = hojeISO();
+    dias = dias.filter(function(d){ return d !== hojeStr; });
+    if (dias.length) out += '<div class="secao"><h2>Dias anteriores</h2></div>';
+
     dias.forEach(function(d){
-      var r = doDia(d), quando = new Date(d + 'T12:00:00');
-      out += '<section class="dia"><div class="dia-cab"><b>' + esc(maiusc1(DIA.format(quando))) + '</b>'
-        + '<span>' + r.vendidos + ' vendido' + (r.vendidos === 1 ? '' : 's') + ' · ' + moeda(r.faturamento) + '</span></div>';
-      mapa[d].forEach(function(m){
-        var dt = movDelta(m);
-        out += '<div class="mov">'
-          + '<span class="hora">' + esc(HORA.format(new Date(m.ts))) + '</span>'
-          + '<span class="oq"><b>' + esc(m.sabor) + '</b><span>' + esc(movLinha(m)) + '</span></span>'
-          + '<span class="delta ' + dt.cls + '">' + esc(dt.txt) + '</span>'
-          + '<button class="apagar" data-acao="apagar-mov" data-id="' + esc(m.id) + '" aria-label="Apagar lançamento" type="button">' + ICO_LIXO + '</button>'
-          + '</div>';
-      });
+      var f = fechamento(d), quando = new Date(d + 'T12:00:00');
+      var aberto = !!diasAbertos[d];
+      out += '<section class="dia">'
+        + '<div class="dia-cab"><b>' + esc(maiusc1(DIA.format(quando))) + '</b>'
+        + '<span>' + f.tot.vendidos + ' vendido' + (f.tot.vendidos === 1 ? '' : 's')
+        + ' · ' + moeda(f.tot.faturamento) + '</span></div>';
+
+      if (f.ordem.length){
+        out += '<div class="dia-sabores">';
+        f.ordem.forEach(function(k){
+          var x = f.por[k], extras = [];
+          if (x.fornos) extras.push(x.fornos + ' no forno');
+          if (x.ajustes) extras.push(x.ajustes + (x.ajustes === 1 ? ' ajuste' : ' ajustes'));
+          out += '<div class="ds">'
+            + '<span class="nm"><span class="ponto" style="background:' + esc(x.cor || '#A56B3E') + '"></span>'
+            + esc(x.nome) + (extras.length ? '<i class="ex">' + esc(extras.join(' · ')) + '</i>' : '') + '</span>'
+            + '<b>' + (x.vendidos ? x.vendidos + ' vend.' : '—') + '</b>'
+            + '<i>' + (x.faturamento ? moeda(x.faturamento) : '') + '</i>'
+            + '</div>';
+        });
+        out += '</div>';
+      }
+
+      var nl = mapa[d].length;
+      out += '<button class="ver-lanc" data-acao="abrir-dia" data-dia="' + esc(d) + '" aria-expanded="' + aberto + '" type="button">'
+        + (aberto ? 'esconder' : 'ver') + (nl === 1 ? ' o lançamento' : ' os ' + nl + ' lançamentos')
+        + '<span class="seta">' + (aberto ? '▴' : '▾') + '</span></button>';
+
+      if (aberto) out += '<div class="lancs">' + listaMovs(mapa[d]) + '</div>';
       out += '</section>';
     });
+
+    out += '<div class="acoes-sheet" style="margin-top:14px">'
+      + '<button class="btn fantasma" data-acao="csv" type="button">Exportar</button></div>';
     out += '<button class="btn fantasma full zerar" data-acao="limpar" type="button">Limpar tudo e começar do zero</button>';
     return out + rodape();
   }
@@ -1035,7 +1350,34 @@ body.trancado .app,body.trancado .abas{visibility:hidden}
     atualizarBarra();
     elView.innerHTML = S.aba === 'planilha' ? telaPlanilha()
       : S.aba === 'historico' ? telaHistorico() : telaEstoque();
+    pintarAviso();
   }
+  var CHAVE_VISTO = 'mf.fechamento.visto';
+  function fechamentoNaoVisto(){
+    if (!jaFechou()) return false;
+    var hoje = hojeISO();
+    if (S.aba === 'historico') return false;
+    try { if (localStorage.getItem(CHAVE_VISTO) === hoje) return false; } catch (e) {}
+    return true;
+  }
+  function marcarVisto(){
+    try { localStorage.setItem(CHAVE_VISTO, hojeISO()); } catch (e) {}
+  }
+  function pintarAviso(){
+    var aba = document.getElementById('aba-historico');
+    if (!aba) return;
+    var tem = !!aba.querySelector('.badge');
+    var quer = fechamentoNaoVisto();
+    if (quer && !tem){
+      var i = document.createElement('span');
+      i.className = 'badge';
+      i.setAttribute('aria-label', 'Fechamento do dia pronto');
+      aba.appendChild(i);
+    } else if (!quer && tem){
+      aba.querySelector('.badge').remove();
+    }
+  }
+
   function atualizarBarra(){
     var t = totais();
     document.getElementById('barra-total').textContent = t.vender;
@@ -1068,6 +1410,7 @@ body.trancado .app,body.trancado .abas{visibility:hidden}
     b.addEventListener('click', function(){
       escoar();
       S.aba = b.getAttribute('data-aba');
+      if (S.aba === 'historico') marcarVisto();
       Array.prototype.forEach.call(document.querySelectorAll('[data-aba]'), function(o){
         o.setAttribute('aria-selected', String(o === b));
       });
@@ -1187,21 +1530,52 @@ body.trancado .app,body.trancado .abas{visibility:hidden}
 
   /* ---- exportar ---- */
   function montarCSV(){
-    var linhas = ['Sabor;Pra vender;Pra assar;Preco;Minimo;Valor em estoque'];
+    var L = [];
+    L.push('ESTOQUE AGORA');
+    L.push('Sabor;Pra vender;Pra assar;Preco;Minimo;Valor em estoque');
     S.sabores.forEach(function(s){
       var q = nn(s.qtd);
-      linhas.push([s.nome, q, nn(s.crus), precoBR(s.preco), nn(s.minimo), precoBR(q * nn(s.preco))].join(';'));
+      L.push([s.nome, q, nn(s.crus), precoBR(s.preco), nn(s.minimo), precoBR(q * nn(s.preco))].join(';'));
     });
-    linhas.push('');
-    linhas.push('Data;Hora;Sabor;Lancamento;Pra vender;Pra assar;Valor');
+
+    var dias = [];
+    S.movs.forEach(function(m){
+      var d = diaDe(m);
+      if (dias.indexOf(d) < 0) dias.push(d);
+    });
+    dias.sort();
+
+    L.push('');
+    L.push('FECHAMENTO POR DIA');
+    L.push('Data;Vendidos;Faturamento;Ajustes;Lancamentos');
+    dias.forEach(function(d){
+      var f = fechamento(d);
+      L.push([d.split('-').reverse().join('/'), f.tot.vendidos, precoBR(f.tot.faturamento),
+              f.tot.ajustes, f.tot.lancamentos].join(';'));
+    });
+
+    L.push('');
+    L.push('POR SABOR, POR DIA');
+    L.push('Data;Sabor;Vendidos;Faturamento;Ajustes');
+    dias.forEach(function(d){
+      var f = fechamento(d);
+      f.ordem.forEach(function(k){
+        var x = f.por[k];
+        L.push([d.split('-').reverse().join('/'), x.nome, x.vendidos, precoBR(x.faturamento), x.ajustes].join(';'));
+      });
+    });
+
+    L.push('');
+    L.push('LANCAMENTOS');
+    L.push('Data;Hora;Sabor;Lancamento;Pra vender;Pra assar;Valor');
     S.movs.slice().reverse().forEach(function(m){
       var d = new Date(m.ts);
-      linhas.push([
-        d.toLocaleDateString('pt-BR'), HORA.format(d), m.sabor, ROTULO[m.tipo] || m.tipo,
+      L.push([
+        diaDe(m).split('-').reverse().join('/'), HORA.format(d), m.sabor, ROTULO[m.tipo] || m.tipo,
         (m.dVender == null ? nn(m.delta) : nn(m.dVender)), nn(m.dAssar), precoBR(m.valor)
       ].join(';'));
     });
-    return linhas.join('\r\n');
+    return L.join('\r\n');
   }
   function abrirCSV(){
     var h = cabecalho('#A56B3E', 'Exportar planilha');
@@ -1476,6 +1850,12 @@ body.trancado .app,body.trancado .abas{visibility:hidden}
     if (acao === 'baixar-csv') return baixarCSV();
     if (acao === 'limpar') return abrirLimpar();
     if (acao === 'confirmar-limpar'){ if (ocupado()) return; return limparTudo(); }
+    if (acao === 'abrir-dia'){
+      var dia = b.getAttribute('data-dia');
+      diasAbertos[dia] = !diasAbertos[dia];
+      render();
+      return;
+    }
     if (acao === 'apagar-mov') return abrirApagarMov(id);
 
     if (acao === 'copiar-csv'){
@@ -1571,6 +1951,17 @@ body.trancado .app,body.trancado .abas{visibility:hidden}
       atualizarSabor(id, {minimo:Math.max(0, Math.round(v))});
     }
   });
+
+  /* com o app aberto, perceber que passou das 21:10 (ou que virou o dia) */
+  var marcoFecho = null, marcoDia = null;
+  setInterval(function(){
+    var f = jaFechou(), d = hojeISO();
+    if (marcoFecho === null){ marcoFecho = f; marcoDia = d; return; }
+    if (f !== marcoFecho || d !== marcoDia){
+      marcoFecho = f; marcoDia = d;
+      render();
+    }
+  }, 30000);
 
   window.addEventListener('pagehide', escoar);
   document.addEventListener('visibilitychange', function(){ if (document.hidden) escoar(); });

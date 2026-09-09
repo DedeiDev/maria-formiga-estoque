@@ -358,6 +358,12 @@ tfoot td:first-child{background:var(--surface-2)}
 .btn.fantasma:active{background:var(--bg-deep)}
 .btn.perigo{background:var(--crit-bg);color:var(--crit);border:1px solid transparent}
 .btn.full{width:100%}
+.btn.zerar{
+  margin-top:20px;font-size:.82rem;font-weight:600;
+  color:var(--ink-soft);background:transparent;border:1px dashed var(--line-strong);
+}
+.btn.zerar:active{background:var(--crit-bg);color:var(--crit)}
+.aviso b{color:var(--ink);font-weight:700}
 .rodape{
   margin-top:26px;text-align:center;font-size:.7rem;color:var(--ink-faint);
   display:flex;flex-direction:column;gap:4px;align-items:center;
@@ -586,7 +592,8 @@ tfoot td:first-child{background:var(--surface-2)}
   }
 
   /* ============ estado ============ */
-  var S = {sabores:[], movs:[], aba:'estoque', db:null, fonte:'local', prontoNuvem:false};
+  var S = {sabores:[], movs:[], aba:'estoque', db:null, fonte:'local', prontoNuvem:false,
+           aguardando:!!(window.claude && typeof window.claude.use === 'function')};
   var CHAVE = 'mf.cookies.v1';
   var sujo = false, ultimoMov = null, tToast = null;
 
@@ -615,10 +622,17 @@ tfoot td:first-child{background:var(--surface-2)}
   }
 
   /* ============ guarda na nuvem (db do artifact) ============ */
+  function ocupado(){
+    if (!S.aguardando) return false;
+    toast('Só um instante', 'Conectando com seus dados salvos…');
+    return true;
+  }
   function conectarNuvem(){
     if (!window.claude || typeof window.claude.use !== 'function') return;
+    setTimeout(function(){ if (S.aguardando){ S.aguardando = false; render(); } }, 11000);
     window.claude.use('db').then(function(db){
-      if (!db) return;
+      S.aguardando = false;
+      if (!db){ render(); return; }
       S.db = db;
       S.fonte = 'nuvem';
       db.collection('estoque').orderBy('ordem').onSnapshot(function(snap){
@@ -627,14 +641,14 @@ tfoot td:first-child{background:var(--surface-2)}
         });
         S.prontoNuvem = true;
         render();
-      }, function(){ S.db = null; S.fonte = 'local'; iniciarLocal(); render(); });
+      }, function(){ S.db = null; S.fonte = 'local'; S.aguardando = false; iniciarLocal(); render(); });
       db.collection('movimentos').orderBy('ts', 'desc').limit(300).onSnapshot(function(snap){
         S.movs = snap.docs.map(function(d){
           var o = d.data() || {}; o.id = d.id; return o;
         });
         render();
       }, function(){});
-    }).catch(function(){});
+    }).catch(function(){ S.aguardando = false; render(); });
   }
 
   /* ============ gravações ============ */
@@ -679,6 +693,7 @@ tfoot td:first-child{background:var(--surface-2)}
   var ROTULO = {venda:'Venda', fornada:'Fornada', ajuste:'Contagem ajustada'};
 
   function registrar(sabor, tipo, valorDigitado){
+    if (ocupado()) return Promise.resolve();
     var antes = nn(sabor.qtd), depois;
     if (tipo === 'ajuste') depois = Math.max(0, Math.round(valorDigitado));
     else if (tipo === 'fornada') depois = antes + Math.round(valorDigitado);
@@ -716,6 +731,7 @@ tfoot td:first-child{background:var(--surface-2)}
   /* ============ lançamentos em fila (toques repetidos) ============ */
   var fila = null;
   function enfileirar(sabor, tipo, passo){
+    if (ocupado()) return;
     if (fila && (fila.id !== sabor.id || fila.tipo !== tipo)) escoar();
     if (!fila) fila = {id:sabor.id, tipo:tipo, qtd:0, timer:null};
     fila.qtd += passo;
@@ -900,7 +916,35 @@ tfoot td:first-child{background:var(--surface-2)}
       });
       out += '</section>';
     });
+    out += '<button class="btn fantasma full zerar" data-acao="limpar" type="button">Limpar tudo e começar do zero</button>';
     return out + rodape();
+  }
+
+  function limparTudo(){
+    var movs = S.movs.slice(), sabores = S.sabores.slice();
+    fechar();
+    var passos = sabores.map(function(x){
+      return function(){ return atualizarSabor(x.id, {qtd:0}); };
+    }).concat(movs.map(function(m){
+      return function(){ return removerMov(m.id); };
+    }));
+    if (!passos.length) return;
+    toast('Limpando…', passos.length + ' registro' + (passos.length === 1 ? '' : 's'));
+    (function proximo(i){
+      if (i >= passos.length){
+        toast('Tudo limpo', 'Estoque zerado e histórico apagado. Sabores e preços continuam.');
+        return;
+      }
+      Promise.resolve().then(passos[i]).then(function(){ proximo(i + 1); }, function(){ proximo(i + 1); });
+    })(0);
+  }
+  function abrirLimpar(){
+    var h = cabecalho('#AE3527', 'Começar do zero');
+    h += '<p class="aviso">Apaga <b>todos os ' + S.movs.length + ' lançamentos</b> do histórico e zera a quantidade dos '
+      + S.sabores.length + ' sabores. Os sabores, preços, mínimos e cores continuam como estão. Não tem como desfazer.</p>';
+    h += '<div class="acoes-sheet"><button class="btn perigo" data-acao="confirmar-limpar" type="button">Apagar e zerar</button>'
+      + '<button class="btn fantasma" data-acao="fechar" type="button">Cancelar</button></div>';
+    abrir(h);
   }
 
   function rodape(){
@@ -1174,6 +1218,7 @@ tfoot td:first-child{background:var(--surface-2)}
       return;
     }
     if (acao === 'criar-casa'){
+      if (ocupado()) return;
       var lista = saboresDaCasa();
       Promise.all(lista.map(criarSabor)).then(function(){
         toast('Sabores criados', 'Chocolatudo, Kinder, Nutella e Ninho.');
@@ -1190,6 +1235,7 @@ tfoot td:first-child{background:var(--surface-2)}
       return;
     }
     if (acao === 'salvar-sabor'){
+      if (ocupado()) return;
       var nome = (document.getElementById('f-nome').value || '').trim();
       if (!nome){ toast('Falta o nome do sabor'); return; }
       var preco = lerNumeroBR(document.getElementById('f-preco').value);
@@ -1219,9 +1265,12 @@ tfoot td:first-child{background:var(--surface-2)}
       abrir(h);
       return;
     }
-    if (acao === 'confirmar-excluir-sabor'){ fechar(); removerSabor(id); toast('Sabor excluído'); return; }
+    if (acao === 'confirmar-excluir-sabor'){ if (ocupado()) return; fechar(); removerSabor(id); toast('Sabor excluído'); return; }
+    if (acao === 'limpar') return abrirLimpar();
+    if (acao === 'confirmar-limpar'){ if (ocupado()) return; return limparTudo(); }
     if (acao === 'apagar-mov') return abrirApagarMov(id);
     if (acao === 'confirmar-apagar-mov'){
+      if (ocupado()) return;
       var mv = null;
       S.movs.forEach(function(x){ if (x.id === id) mv = x; });
       fechar();
@@ -1269,6 +1318,7 @@ tfoot td:first-child{background:var(--surface-2)}
     var id = el.getAttribute('data-id'), campo = el.getAttribute('data-campo');
     var s = acharSabor(id);
     if (!s) return;
+    if (ocupado()){ render(); return; }
     if (campo === 'qtd'){
       var v = Math.max(0, Math.round(lerNumeroBR(el.value)));
       if (v !== nn(s.qtd)) registrar(s, 'ajuste', v); else render();

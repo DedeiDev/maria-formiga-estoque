@@ -1,0 +1,17 @@
+{
+  "name": "Maria Formiga — Controle de cookies",
+  "short_name": "Maria Formiga",
+  "description": "Estoque, vendas e histórico dos cookies da Doceria Maria Formiga.",
+  "lang": "pt-BR",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#EDD9B2",
+  "theme_color": "#EDD9B2",
+  "icons": [
+    { "src": "assets/apple-touch-icon.jpg", "sizes": "180x180", "type": "image/jpeg" },
+    { "src": "assets/logo-mark.jpg", "sizes": "288x288", "type": "image/jpeg" },
+    { "src": "assets/logo.jpg", "sizes": "1170x1150", "type": "image/jpeg" }
+  ]
+}
